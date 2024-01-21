@@ -8,7 +8,7 @@ import java.util.List;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
-import static chess.ChessPiece.PieceType.QUEEN;
+import static chess.ChessPiece.PieceType.*;
 
 public class PawnMove implements PieceMove {
 
@@ -32,6 +32,9 @@ public class PawnMove implements PieceMove {
         if (validPosition(row+1, col+1) && board.getPiece(new ChessPosition(row+1, col+1)) != null && board.getPiece(new ChessPosition(row+1, col+1)).getTeamColor() == BLACK) {
             if (row == 7) {
                 validMoves.add(new ChessMove(start, new ChessPosition(row+1, col+1), QUEEN));
+                validMoves.add(new ChessMove(start, new ChessPosition(row+1, col+1), ROOK));
+                validMoves.add(new ChessMove(start, new ChessPosition(row+1, col+1), KNIGHT));
+                validMoves.add(new ChessMove(start, new ChessPosition(row+1, col+1), BISHOP));
             } else {
                 validMoves.add(new ChessMove(start, new ChessPosition(row+1, col+1), null));
             }
@@ -39,6 +42,9 @@ public class PawnMove implements PieceMove {
         if (validPosition(row+1, col-1) && board.getPiece(new ChessPosition(row+1, col-1)) != null && board.getPiece(new ChessPosition(row+1, col-1)).getTeamColor() == BLACK) {
             if (row == 7) {
                 validMoves.add(new ChessMove(start, new ChessPosition(row+1, col-1), QUEEN));
+                validMoves.add(new ChessMove(start, new ChessPosition(row+1, col-1), ROOK));
+                validMoves.add(new ChessMove(start, new ChessPosition(row+1, col-1), KNIGHT));
+                validMoves.add(new ChessMove(start, new ChessPosition(row+1, col-1), BISHOP));
             } else {
                 validMoves.add(new ChessMove(start, new ChessPosition(row+1, col-1), null));
             }
@@ -46,6 +52,9 @@ public class PawnMove implements PieceMove {
         if (validPosition(row+1, col) && board.getPiece(new ChessPosition(row+1, col)) == null) {
             if (row == 7) {
                 validMoves.add(new ChessMove(start, new ChessPosition(row+1, col), QUEEN));
+                validMoves.add(new ChessMove(start, new ChessPosition(row+1, col), ROOK));
+                validMoves.add(new ChessMove(start, new ChessPosition(row+1, col), KNIGHT));
+                validMoves.add(new ChessMove(start, new ChessPosition(row+1, col), BISHOP));
             } else {
                 validMoves.add(new ChessMove(start, new ChessPosition(row+1, col), null));
             }
@@ -64,13 +73,34 @@ public class PawnMove implements PieceMove {
         List<ChessMove> validMoves = new ArrayList<>();
 
         if (validPosition(row-1, col+1) && board.getPiece(new ChessPosition(row-1, col+1)) != null && board.getPiece(new ChessPosition(row-1, col+1)).getTeamColor() == WHITE) {
-            validMoves.add(new ChessMove(start, new ChessPosition(row-1, col+1), null));
+            if (row == 2) {
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col+1), QUEEN));
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col+1), ROOK));
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col+1), KNIGHT));
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col+1), BISHOP));
+            } else {
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col+1), null));
+            }
         }
         if (validPosition(row-1, col-1) && board.getPiece(new ChessPosition(row-1, col-1)) != null && board.getPiece(new ChessPosition(row-1, col-1)).getTeamColor() == WHITE) {
-            validMoves.add(new ChessMove(start, new ChessPosition(row-1, col-1), null));
+            if (row == 2) {
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col-1), QUEEN));
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col-1), ROOK));
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col-1), KNIGHT));
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col-1), BISHOP));
+            } else {
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col-1), null));
+            }
         }
         if (validPosition(row-1, col) && board.getPiece(new ChessPosition(row-1, col)) == null) {
-            validMoves.add(new ChessMove(start, new ChessPosition(row-1, col), null));
+            if (row == 2) {
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col), QUEEN));
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col), ROOK));
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col), KNIGHT));
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col), BISHOP));
+            } else {
+                validMoves.add(new ChessMove(start, new ChessPosition(row-1, col), null));
+            }
         }
         if (row == 7 && board.getPiece(new ChessPosition(row-1, col)) == null && board.getPiece(new ChessPosition(row-2, col)) == null) {
             validMoves.add(new ChessMove(start, new ChessPosition(row-2, col), null));
