@@ -29,10 +29,11 @@ public class KingMove implements PieceMove {
             for (int j = -1; j <= 1; j++) {
                 r = row + i;
                 c = col + j;
-                ChessPiece square = board.getPiece(new ChessPosition(r, c));
-                if (validPosition(r, c) && (square == null || piece.getTeamColor() != square.getTeamColor())) {
-                    validMoves.add(new ChessMove(start, new ChessPosition(r, c), null));
-                    System.out.print(r + "," + c + " ");
+                if (validPosition(r, c)) {
+                    ChessPiece square = board.getPiece(new ChessPosition(r, c));
+                    if (square == null || piece.getTeamColor() != square.getTeamColor()) {
+                        validMoves.add(new ChessMove(start, new ChessPosition(r, c), null));
+                    }
                 }
             }
         }
