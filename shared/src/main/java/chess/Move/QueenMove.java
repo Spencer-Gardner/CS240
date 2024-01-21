@@ -14,14 +14,11 @@ public class QueenMove implements PieceMove {
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> combinedList = new ArrayList<>();
-        combinedList.addAll(Calculator(board, myPosition, 1, 0));
-        combinedList.addAll(Calculator(board, myPosition, -1, 0));
-        combinedList.addAll(Calculator(board, myPosition, 0, 1));
-        combinedList.addAll(Calculator(board, myPosition, 0, -1));
-        combinedList.addAll(Calculator(board, myPosition, 1, 1));
-        combinedList.addAll(Calculator(board, myPosition, -1, 1));
-        combinedList.addAll(Calculator(board, myPosition, -1, -1));
-        combinedList.addAll(Calculator(board, myPosition, 1, -1));
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                combinedList.addAll(Calculator(board, myPosition, i, j));
+            }
+        }
         return combinedList;
     }
 
@@ -32,21 +29,21 @@ public class QueenMove implements PieceMove {
         ChessPiece piece = board.getPiece(start);
         List<ChessMove> validMoves = new ArrayList<>();
 
-        row = row + v;
-        col = col + h;
-        while (validPosition(row, col)) {
-            ChessPiece square = board.getPiece(new ChessPosition(row, col));
+        int r = row + v;
+        int c = col + h;
+        while (validPosition(r, c)) {
+            ChessPiece square = board.getPiece(new ChessPosition(r, c));
             if (square == null) {
-                validMoves.add(new ChessMove(start, new ChessPosition(row, col), null));
+                validMoves.add(new ChessMove(start, new ChessPosition(r, c), null));
             } else if (piece.getTeamColor() != square.getTeamColor()) {
-                validMoves.add(new ChessMove(start, new ChessPosition(row, col), null));
+                validMoves.add(new ChessMove(start, new ChessPosition(r, c), null));
                 break;
             } else if (piece.getTeamColor() == square.getTeamColor()) {
                 break;
             }
-            System.out.print(row + "," + col + " ");
-            row = row + v;
-            col = col + h;
+            System.out.print(r + "," + c + " ");
+            r = r + v;
+            c = c + h;
         }
 
         return validMoves;
@@ -55,4 +52,5 @@ public class QueenMove implements PieceMove {
     public static boolean validPosition(int x, int y) {
         return x >= 1 && x <= 8 && y >= 1 && y <= 8;
     }
+
 }
