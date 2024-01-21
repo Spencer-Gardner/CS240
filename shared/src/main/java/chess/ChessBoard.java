@@ -65,7 +65,7 @@ public class ChessBoard {
         squares[0][5] = new ChessPiece(WHITE, BISHOP);
         squares[0][6] = new ChessPiece(WHITE, KNIGHT);
         squares[0][7] = new ChessPiece(WHITE, ROOK);
-        for (int i = 1; i < 9; i++) {
+        for (int i = 0; i < 8; i++) {
             squares[1][i] = new ChessPiece(WHITE, PAWN);
         }
         squares[7][0] = new ChessPiece(BLACK, ROOK);
@@ -76,7 +76,7 @@ public class ChessBoard {
         squares[7][5] = new ChessPiece(BLACK, BISHOP);
         squares[7][6] = new ChessPiece(BLACK, KNIGHT);
         squares[7][7] = new ChessPiece(BLACK, ROOK);
-        for (int i = 1; i < 9; i++) {
+        for (int i = 0; i < 8; i++) {
             squares[6][i] = new ChessPiece(BLACK, PAWN);
         }
     }
