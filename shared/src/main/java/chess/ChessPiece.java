@@ -1,8 +1,6 @@
 package chess;
 
-import chess.Move.BishopMove;
-import chess.Move.PawnMove;
-import chess.Move.PieceMove;
+import chess.Move.*;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -75,6 +73,10 @@ public class ChessPiece {
             variable = new BishopMove();
         } else if (type == PieceType.PAWN) {
             variable = new PawnMove();
+        } else if (type ==  PieceType.ROOK) {
+            variable = new RookMove();
+        } else if (type == PieceType.QUEEN) {
+            variable = new QueenMove();
         } else {
             return null;
         }
