@@ -69,16 +69,27 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         PieceMove variable;
-        if (type == PieceType.BISHOP) {
-            variable = new BishopMove();
-        } else if (type == PieceType.PAWN) {
-            variable = new PawnMove();
-        } else if (type ==  PieceType.ROOK) {
-            variable = new RookMove();
-        } else if (type == PieceType.QUEEN) {
-            variable = new QueenMove();
-        } else {
-            return null;
+        switch (type) {
+            case PAWN:
+                variable = new PawnMove();
+                break;
+            case BISHOP:
+                variable = new BishopMove();
+                break;
+            case KNIGHT:
+                variable = new KnightMove();
+                break;
+            case ROOK:
+                variable = new RookMove();
+                break;
+            case QUEEN:
+                variable = new QueenMove();
+                break;
+            case KING:
+                variable = new KingMove();
+                break;
+            default:
+                return null;
         }
         return variable.pieceMoves(board, myPosition);
     }
