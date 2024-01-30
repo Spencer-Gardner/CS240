@@ -2,8 +2,7 @@ package chess;
 
 import java.util.Arrays;
 
-import static chess.ChessGame.TeamColor.BLACK;
-import static chess.ChessGame.TeamColor.WHITE;
+import static chess.ChessGame.TeamColor.*;
 import static chess.ChessPiece.PieceType.*;
 
 /**
@@ -15,6 +14,8 @@ import static chess.ChessPiece.PieceType.*;
 public class ChessBoard {
 
     private final ChessPiece[][] squares = new ChessPiece[8][8];
+
+    public ChessBoard() {}
 
     @Override
     public boolean equals(Object o) {
@@ -29,7 +30,12 @@ public class ChessBoard {
         return Arrays.deepHashCode(squares);
     }
 
-    public ChessBoard() {}
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "squares=" + Arrays.toString(squares) +
+                '}';
+    }
 
     /**
      * Adds a chess piece to the chessboard

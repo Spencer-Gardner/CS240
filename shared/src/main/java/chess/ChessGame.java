@@ -10,8 +10,11 @@ import java.util.Collection;
  */
 public class ChessGame {
 
-    public ChessGame() {
+    public ChessGame() { }
 
+    @Override
+    public String toString() {
+        return "ChessGame{}";
     }
 
     /**
