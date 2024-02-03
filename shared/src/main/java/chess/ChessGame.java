@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -75,7 +77,18 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        Set<ChessMove> moves = new HashSet<>();
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+                if (piece != null) {
+                    if (piece.getTeamColor() != teamColor) {
+                        moves.addAll(validMoves(new ChessPosition(i, j)));
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
