@@ -2,7 +2,7 @@ package chess;
 
 import java.util.*;
 
-import static chess.ChessPiece.PieceType.KING;
+import static chess.ChessPiece.PieceType.*;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -17,10 +17,18 @@ public class ChessGame {
 
     public ChessGame() { }
 
+    public ChessGame createTempCopy() {
+        ChessGame tempCopy = new ChessGame();
+        tempCopy.setBoard(board);
+        tempCopy.setTeamTurn(team);
+        return tempCopy;
+    }
+
     @Override
     public String toString() {
         return "ChessGame{}";
     }
+
 
     /**
      * @return Which team's turn it is
@@ -83,10 +91,10 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        ChessPiece piece = board.getPiece(move.startPosition());
-        board.removePiece(move.startPosition());
-        board.removePiece(move.endPosition());
-        board.addPiece(move.endPosition(), piece);
+            ChessPiece piece = board.getPiece(move.startPosition());
+            board.removePiece(move.startPosition());
+            board.removePiece(move.endPosition());
+            board.addPiece(move.endPosition(), piece);
     }
 
     /**
@@ -97,7 +105,7 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         List<ChessMove> opponentMoves = new ArrayList<>(allValidMoves(teamColor.getOpposite()));
-        ChessPosition kingPosition = getKingPosition(teamColor);
+        ChessPosition kingPosition = kingPosition(teamColor);
         for (ChessMove move : opponentMoves) {
             if (move.getEndPosition() == kingPosition) {
                 return true;
@@ -106,7 +114,7 @@ public class ChessGame {
         return false;
     }
 
-    public ChessPosition getKingPosition(TeamColor teamColor) {
+    public ChessPosition kingPosition(TeamColor teamColor) {
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(i, j));
@@ -127,40 +135,173 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return !canFlee(teamColor) && !canProtect(teamColor);
     }
 
-//    public boolean canFlee(TeamColor teamColor) {
-//        ChessPosition kingPosition = getKingPosition(teamColor);
-//        List<ChessMove> kingMoves = new ArrayList<>(validMoves(kingPosition));
-//        for (ChessMove move : kingMoves) {
-//
-//        }
-//    }
-//
-//    public boolean checkTest(TeamColor teamColor, ChessPosition testPosition) {
-//        Set<ChessMove> opponentMoves = new HashSet<>();
-//        for (int i = 1; i <= 8; i++) {
-//            for (int j = 1; j <= 8; j++) {
-//                ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-//                if (piece != null) {
-//                    if (piece.getTeamColor() != teamColor) {
-//                        opponentMoves.addAll(validMoves(new ChessPosition(i, j)));
-//                    }
-//                }
-//            }
-//        }
-//        for (ChessMove move : opponentMoves) {
-//            if (move.getEndPosition() == testPosition) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    public boolean canProtect(TeamColor teamColor) {
-//
-//    }
+    public boolean canFlee(TeamColor teamColor) {
+        ChessPosition kingPosition = kingPosition(teamColor);
+        List<ChessMove> kingMoves = new ArrayList<>(validMoves(kingPosition));
+        for (ChessMove move : kingMoves) {
+            if (!checkTest(teamColor, move.endPosition())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean checkTest(TeamColor teamColor, ChessPosition testPosition) {
+        Set<ChessMove> opponentMoves = new HashSet<>(allValidMoves(teamColor.getOpposite()));
+        for (ChessMove move : opponentMoves) {
+            if (move.getEndPosition() == testPosition) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean canProtect(TeamColor teamColor) {
+        Collection<ChessMove> protectMoves = new ArrayList<>(protectMoves(threatPaths(threats(team))));
+        for (ChessMove move : protectMoves) {
+            ChessGame tempCopy = createTempCopy();
+            try {
+                tempCopy.makeMove(move);
+            } catch (InvalidMoveException e) {
+                throw new RuntimeException(e);
+            }
+            List<ChessMove> opponentMoves = new ArrayList<>();
+            for (int i = 1; i <= 8; i++) {
+                for (int j = 1; j <= 8; j++) {
+                    ChessPiece piece = tempCopy.getBoard().getPiece(new ChessPosition(i, j));
+                    if (piece != null) {
+                        if (piece.getTeamColor() == teamColor) {
+                            opponentMoves.addAll(validMoves(new ChessPosition(i, j)));
+                        }
+                    }
+                }
+            }
+            for (ChessMove tempMove : opponentMoves) {
+                if (tempMove.getEndPosition() != tempCopy.kingPosition(team)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public Collection<ChessPosition> threats(TeamColor teamColor) {
+        List<ChessMove> threatMoves = new ArrayList<>();
+        ChessPosition kingPosition = kingPosition(teamColor);
+        List<ChessPosition> threats = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+                if (piece != null) {
+                    if (piece.getTeamColor() != teamColor) {
+                        threatMoves.addAll(validMoves(new ChessPosition(i, j)));
+                        for (ChessMove move : threatMoves) {
+                            if (move.getEndPosition() == kingPosition) {
+                                threats.add(new ChessPosition(i, j));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return threats;
+    }
+
+    public Collection<ChessPosition> threatPaths(Collection<ChessPosition> threats) {
+        List<ChessPosition> threatPaths = new ArrayList<>();
+        for (ChessPosition threat : threats) {
+            if (board.getPiece(threat).getPieceType() == PAWN) {
+                threatPaths.add(threat);
+            } else if (board.getPiece(threat).getPieceType() == BISHOP) {
+                threatPaths.addAll(traceBishop(threat, kingPosition(team)));
+            } else if (board.getPiece(threat).getPieceType() == KNIGHT) {
+                threatPaths.add(threat);
+            } else if (board.getPiece(threat).getPieceType() == ROOK) {
+                threatPaths.addAll(traceRook(threat, kingPosition(team)));
+            } else if (board.getPiece(threat).getPieceType() == QUEEN) {
+                threatPaths.addAll(traceBishop(threat, kingPosition(team)));
+                threatPaths.addAll(traceRook(threat, kingPosition(team)));
+            }
+        }
+        return threatPaths;
+    }
+
+    public Collection<ChessMove> protectMoves(Collection<ChessPosition> threatPaths) {
+        List<ChessMove> protectMoves = new ArrayList<>();
+        List<ChessMove> teamMoves = new ArrayList<>(allValidMoves(team));
+        for (ChessMove move : teamMoves) {
+            for (ChessPosition threat : threatPaths) {
+                if (move.getEndPosition() == threat) {
+                    protectMoves.add(move);
+                }
+            }
+        }
+        return protectMoves;
+    }
+
+    public Collection<ChessPosition> traceBishop(ChessPosition bishopPosition, ChessPosition kingPosition) {
+        int bishopRow = bishopPosition.getRow();
+        int bishopCol = bishopPosition.getColumn();
+        int kingRow = kingPosition.getRow();
+        int kingCol = kingPosition.getColumn();
+        List<ChessPosition> bishopPath = new ArrayList<>();
+        if (bishopRow > kingRow && bishopCol > kingCol) {
+            for (int i = kingRow; i <= bishopRow; i++) {
+                for (int j = kingCol; j <= bishopCol; j++) {
+                    bishopPath.add(new ChessPosition(i, j));
+                }
+            }
+        } else if (bishopRow < kingRow && bishopCol > kingCol) {
+            for (int i = kingRow; i >= bishopRow; i--) {
+                for (int j = kingCol; j <= bishopCol; j++) {
+                    bishopPath.add(new ChessPosition(i, j));
+                }
+            }
+        } else if (bishopRow > kingRow && bishopCol < kingCol) {
+            for (int i = kingRow; i <= bishopRow; i++) {
+                for (int j = kingCol; j >= bishopCol; j--) {
+                    bishopPath.add(new ChessPosition(i, j));
+                }
+            }
+        } else if (bishopRow < kingRow && bishopCol < kingCol) {
+            for (int i = kingRow; i >= bishopRow; i--) {
+                for (int j = kingCol; j >= bishopCol; j--) {
+                    bishopPath.add(new ChessPosition(i, j));
+                }
+            }
+        }
+        return bishopPath;
+    }
+
+    public Collection<ChessPosition> traceRook(ChessPosition rookPosition, ChessPosition kingPosition) {
+        int rookRow = rookPosition.getRow();
+        int rookCol = rookPosition.getColumn();
+        int kingRow = kingPosition.getRow();
+        int kingCol = kingPosition.getColumn();
+        List<ChessPosition> rookPath = new ArrayList<>();
+        if (rookRow > kingRow && rookCol == kingCol) {
+            for (int i = kingRow; i <= rookRow; i++) {
+                rookPath.add(new ChessPosition(i, rookCol));
+            }
+        } else if (rookRow < kingRow && rookCol == kingCol) {
+            for (int i = kingRow; i >= rookRow; i--) {
+                rookPath.add(new ChessPosition(i, rookCol));
+            }
+        } else if (rookRow == kingRow && rookCol > kingCol) {
+            for (int j = kingCol; j <= rookCol; j++) {
+                rookPath.add(new ChessPosition(rookRow, j));
+            }
+        } else if (rookRow == kingRow && rookCol < kingCol) {
+            for (int j = kingCol; j >= rookCol; j--) {
+                rookPath.add(new ChessPosition(rookCol, j));
+            }
+        }
+        return rookPath;
+    }
 
     /**
      * Determines if the given team is in stalemate, which here is defined as having
