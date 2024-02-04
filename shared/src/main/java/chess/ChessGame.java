@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import static chess.ChessPiece.PieceType.KING;
+
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -77,18 +79,27 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        Set<ChessMove> moves = new HashSet<>();
+        Set<ChessMove> opponentMoves = new HashSet<>();
+        ChessPosition kingPosition = null;
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(i, j));
                 if (piece != null) {
                     if (piece.getTeamColor() != teamColor) {
-                        moves.addAll(validMoves(new ChessPosition(i, j)));
+                        opponentMoves.addAll(validMoves(new ChessPosition(i, j)));
+                    }
+                    if (piece.getTeamColor() == teamColor && piece.getPieceType() == KING) {
+                        kingPosition = new ChessPosition(i, j);
                     }
                 }
             }
         }
-        return true;
+        for (ChessMove move : opponentMoves) {
+            if (move.getEndPosition() == kingPosition) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
