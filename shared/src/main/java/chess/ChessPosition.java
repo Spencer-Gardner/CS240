@@ -23,12 +23,12 @@ public class ChessPosition {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessPosition that = (ChessPosition) o;
-        return row == that.row && col == that.col;
+        return getRow() == that.getRow() && col == that.col;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(row, col);
+        return Objects.hash(getRow(), col);
     }
 
     @Override

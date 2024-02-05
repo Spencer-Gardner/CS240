@@ -13,9 +13,20 @@ import static chess.ChessPiece.PieceType.*;
  */
 public class ChessBoard {
 
-    private final ChessPiece[][] squares = new ChessPiece[8][8];
+    private ChessPiece[][] squares = new ChessPiece[8][8];
 
     public ChessBoard() {}
+
+    public ChessBoard(ChessBoard copy) {
+        this.squares = new ChessPiece[8][8];
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPiece originalPiece = copy.squares[i][j];
+                this.squares[i][j] = originalPiece;
+            }
+        }
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -91,15 +102,4 @@ public class ChessBoard {
         }
     }
 
-    public void copy(ChessBoard original) {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (original.squares[i][j] != null) {
-                    squares[i][j] = new ChessPiece(original.getPiece(new ChessPosition(i+1, j+1)).getTeamColor(), original.getPiece(new ChessPosition(i+1, j+1)).getPieceType());
-                } else {
-                    squares[i][j] = null;
-                }
-            }
-        }
-    }
 }
