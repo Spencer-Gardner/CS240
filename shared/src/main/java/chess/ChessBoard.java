@@ -90,4 +90,16 @@ public class ChessBoard {
             squares[6][i] = new ChessPiece(BLACK, PAWN);
         }
     }
+
+    public void copy(ChessBoard original) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (original.squares[i][j] != null) {
+                    squares[i][j] = new ChessPiece(original.getPiece(new ChessPosition(i+1, j+1)).getTeamColor(), original.getPiece(new ChessPosition(i+1, j+1)).getPieceType());
+                } else {
+                    squares[i][j] = null;
+                }
+            }
+        }
+    }
 }
