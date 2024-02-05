@@ -75,7 +75,7 @@ public class ChessGame {
             for (int j = 1; j <= 8; j++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(i, j));
                 if (piece != null) {
-                    if (piece.getTeamColor() == teamColor) {
+                    if (piece.getTeamColor().equals(teamColor)) {
                         teamMoves.addAll(validMoves(new ChessPosition(i, j)));
                     }
                 }
@@ -91,10 +91,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        try {
             ChessPiece piece = board.getPiece(move.startPosition());
             board.removePiece(move.startPosition());
             board.removePiece(move.endPosition());
             board.addPiece(move.endPosition(), piece);
+        } catch (Exception e) {
+            throw new InvalidMoveException("Invalid");
+        }
     }
 
     /**
@@ -107,7 +111,7 @@ public class ChessGame {
         List<ChessMove> opponentMoves = new ArrayList<>(allValidMoves(teamColor.getOpposite()));
         ChessPosition kingPosition = kingPosition(teamColor);
         for (ChessMove move : opponentMoves) {
-            if (move.getEndPosition() == kingPosition) {
+            if (move.getEndPosition().equals(kingPosition)) {
                 return true;
             }
         }
@@ -119,7 +123,7 @@ public class ChessGame {
             for (int j = 1; j <= 8; j++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(i, j));
                 if (piece != null) {
-                    if (piece.getTeamColor() == teamColor && piece.getPieceType() == KING) {
+                    if (piece.getTeamColor().equals(teamColor) && piece.getPieceType().equals(KING)) {
                         return new ChessPosition(i, j);
                     }
                 }
@@ -152,7 +156,7 @@ public class ChessGame {
     public boolean checkTest(TeamColor teamColor, ChessPosition testPosition) {
         Set<ChessMove> opponentMoves = new HashSet<>(allValidMoves(teamColor.getOpposite()));
         for (ChessMove move : opponentMoves) {
-            if (move.getEndPosition() == testPosition) {
+            if (move.getEndPosition().equals(testPosition)) {
                 return true;
             }
         }
@@ -173,7 +177,7 @@ public class ChessGame {
                 for (int j = 1; j <= 8; j++) {
                     ChessPiece piece = tempCopy.getBoard().getPiece(new ChessPosition(i, j));
                     if (piece != null) {
-                        if (piece.getTeamColor() == teamColor) {
+                        if (piece.getTeamColor().equals(teamColor)) {
                             opponentMoves.addAll(validMoves(new ChessPosition(i, j)));
                         }
                     }
@@ -199,7 +203,7 @@ public class ChessGame {
                     if (piece.getTeamColor() != teamColor) {
                         threatMoves.addAll(validMoves(new ChessPosition(i, j)));
                         for (ChessMove move : threatMoves) {
-                            if (move.getEndPosition() == kingPosition) {
+                            if (move.getEndPosition().equals(kingPosition)) {
                                 threats.add(new ChessPosition(i, j));
                                 break;
                             }
@@ -214,15 +218,15 @@ public class ChessGame {
     public Collection<ChessPosition> threatPaths(Collection<ChessPosition> threats) {
         List<ChessPosition> threatPaths = new ArrayList<>();
         for (ChessPosition threat : threats) {
-            if (board.getPiece(threat).getPieceType() == PAWN) {
+            if (board.getPiece(threat).getPieceType().equals(PAWN)) {
                 threatPaths.add(threat);
-            } else if (board.getPiece(threat).getPieceType() == BISHOP) {
+            } else if (board.getPiece(threat).getPieceType().equals(BISHOP)) {
                 threatPaths.addAll(traceBishop(threat, kingPosition(team)));
-            } else if (board.getPiece(threat).getPieceType() == KNIGHT) {
+            } else if (board.getPiece(threat).getPieceType().equals(KNIGHT)) {
                 threatPaths.add(threat);
-            } else if (board.getPiece(threat).getPieceType() == ROOK) {
+            } else if (board.getPiece(threat).getPieceType().equals(ROOK)) {
                 threatPaths.addAll(traceRook(threat, kingPosition(team)));
-            } else if (board.getPiece(threat).getPieceType() == QUEEN) {
+            } else if (board.getPiece(threat).getPieceType().equals(QUEEN)) {
                 threatPaths.addAll(traceBishop(threat, kingPosition(team)));
                 threatPaths.addAll(traceRook(threat, kingPosition(team)));
             }
@@ -235,7 +239,7 @@ public class ChessGame {
         List<ChessMove> teamMoves = new ArrayList<>(allValidMoves(team));
         for (ChessMove move : teamMoves) {
             for (ChessPosition threat : threatPaths) {
-                if (move.getEndPosition() == threat) {
+                if (move.getEndPosition().equals(threat)) {
                     protectMoves.add(move);
                 }
             }
