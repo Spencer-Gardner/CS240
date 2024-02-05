@@ -58,8 +58,14 @@ public class ChessBoard {
         squares[position.getRow()-1][position.getColumn()-1] = piece;
     }
 
-    public void removePiece(ChessPosition position) {
-        squares[position.getRow()-1][position.getColumn()-1] = null;
+    public void movePiece(ChessMove move) {
+        int startRow = move.getStartPosition().getRow();
+        int startCol = move.getStartPosition().getColumn();
+        int endRow = move.getEndPosition().getRow();
+        int endCol = move.getEndPosition().getColumn();
+
+        squares[endRow-1][endCol-1] = squares[startRow][startCol];
+        squares[startRow][startCol] = null;
     }
 
     /**
