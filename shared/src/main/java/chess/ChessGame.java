@@ -93,11 +93,9 @@ public class ChessGame {
     }
 
     public boolean isNotValid(ChessMove move) {
-
         ChessGame tempCopy = new ChessGame(this);
         ChessBoard tempBoard = tempCopy.getBoard();
         tempBoard.movePiece(move);
-
         return tempCopy.isInCheck(tempBoard.getPiece(move.getEndPosition()).getTeamColor());
     }
 
@@ -125,6 +123,9 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         if (board.getPiece(move.getStartPosition()).getTeamColor().equals(team) && validMoves(move.getStartPosition()).contains(move)) {
             board.movePiece(move);
+            if (move.getPromotionPiece() != null) {
+                board.addPiece(move.getEndPosition(), new ChessPiece(team, move.getPromotionPiece()));
+            }
             setTeamTurn(team.getOpposite());
         } else {
             throw new InvalidMoveException("Invalid move");
