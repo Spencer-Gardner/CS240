@@ -64,8 +64,8 @@ public class ChessBoard {
         int endRow = move.getEndPosition().getRow();
         int endCol = move.getEndPosition().getColumn();
 
-        squares[endRow-1][endCol-1] = squares[startRow][startCol];
-        squares[startRow][startCol] = null;
+        squares[endRow-1][endCol-1] = squares[startRow-1][startCol-1];
+        squares[startRow-1][startCol-1] = null;
     }
 
     /**
