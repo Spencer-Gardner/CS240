@@ -1,10 +1,13 @@
 package server;
 
+import java.nio.file.Paths;
 import spark.*;
 import com.google.gson.Gson;
 import model.*;
 import service.*;
-import java.nio.file.Paths;
+import requests.LoginRequest;
+import requests.JoinRequest;
+import requests.CreateRequest;
 
 public class Server {
 
@@ -39,28 +42,32 @@ public class Server {
     }
 
     private Object login(Request request, Response response) {
-        UserData newUser = gson.fromJson(request.body(), UserData.class);
-        return gson.toJson(UserService.login(newUser));
+        LoginRequest user = gson.fromJson(request.body(), LoginRequest.class);
+        return gson.toJson(UserService.login(user));
     }
 
     private Object logout(Request request, Response response) {
-        UserData newUser = gson.fromJson(request.body(), UserData.class);
-        return gson.toJson(UserService.logout(newUser));
+        String authToken = request.headers("Authentication");
+        UserService.logout(authToken);
+        return null;
     }
 
     private Object listGames(Request request, Response response) {
-        GameData games = gson.fromJson(request.body(), GameData.class);
-        return gson.toJson(GameService.listGames(games));
+        String authToken = request.headers("Authentication");
+        return gson.toJson(GameService.listGames(authToken));
     }
 
     private Object createGame(Request request, Response response) {
-        GameData games = gson.fromJson(request.body(), GameData.class);
-        return gson.toJson(GameService.createGame(games));
+        String authToken = request.headers("Authentication");
+        CreateRequest game = gson.fromJson(request.body(), CreateRequest.class);
+        return gson.toJson(GameService.createGame(game, authToken));
     }
 
     private Object joinGame(Request request, Response response) {
-        GameData games = gson.fromJson(request.body(), GameData.class);
-        return gson.toJson(GameService.joinGame(games));
+        String authToken = request.headers("Authentication");
+        JoinRequest game = gson.fromJson(request.body(), JoinRequest.class);
+        GameService.joinGame(game, authToken);
+        return null;
     }
 
 
