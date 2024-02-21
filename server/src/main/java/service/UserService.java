@@ -1,11 +1,13 @@
 package service;
 
+import dataAccess.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
 import requests.LoginRequest;
 
 public class UserService {
     public static AuthData register(UserData user) {
+        MemoryUserDAO.addUser(user);
         return null;
     }
     public static AuthData login(LoginRequest user) {
