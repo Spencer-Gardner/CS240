@@ -13,6 +13,11 @@ public class MemoryUserDAO implements UserDAO {
         return userData.containsKey(username);
     }
 
+    public static boolean checkPassword(String username, String password) {
+        UserData user = userData.get(username);
+        return user.password().equals(password);
+    }
+
     public static void addUser(UserData user) throws DataAccessException {
         try {
             if (userData.get(user.username()) == null) {

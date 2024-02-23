@@ -38,7 +38,7 @@ public class Server {
         try {
             ApplicationService.clear();
             response.status(200);
-            return null;
+            return "{}";
         } catch (DataAccessException e) {
             response.status(e.getCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
@@ -63,7 +63,8 @@ public class Server {
     private Object login(Request request, Response response) {
         try {
             LoginRequest user = gson.fromJson(request.body(), LoginRequest.class);
-            response.status(200);
+//            System.out.println(user);
+//            response.status(200);
             return gson.toJson(UserService.login(user));
         } catch (DataAccessException e) {
             response.status(e.getCode());
@@ -73,10 +74,10 @@ public class Server {
 
     private Object logout(Request request, Response response) {
         try {
-            String authToken = request.headers("Authentication");
+            String authToken = request.headers("Authorization");
             UserService.logout(authToken);
             response.status(200);
-            return null;
+            return "{}";
         } catch (DataAccessException e) {
             response.status(e.getCode());
             return gson.toJson(new ErrorResponse(e.getMessage()));
@@ -85,7 +86,7 @@ public class Server {
 
     private Object listGames(Request request, Response response) {
         try {
-            String authToken = request.headers("Authentication");
+            String authToken = request.headers("Authorization");
             response.status(200);
             return gson.toJson(GameService.listGames(authToken));
         } catch (DataAccessException e) {
@@ -96,7 +97,7 @@ public class Server {
 
     private Object createGame(Request request, Response response) {
         try {
-            String authToken = request.headers("Authentication");
+            String authToken = request.headers("Authorization");
             CreateRequest game = gson.fromJson(request.body(), CreateRequest.class);
             response.status(200);
             return gson.toJson(GameService.createGame(game, authToken));
@@ -112,11 +113,11 @@ public class Server {
 
     private Object joinGame(Request request, Response response) {
         try {
-            String authToken = request.headers("Authentication");
+            String authToken = request.headers("Authorization");
             JoinRequest game = gson.fromJson(request.body(), JoinRequest.class);
             GameService.joinGame(game, authToken);
             response.status(200);
-            return null;
+            return "{}";
         } catch (JsonSyntaxException e) {
             response.status(400);
             return gson.toJson(new ErrorResponse("Error: bad request"));
@@ -128,7 +129,12 @@ public class Server {
     }
 
     private static class ErrorResponse {
+        private final String message;
         public ErrorResponse(String message) {
+            this.message = message;
+        }
+        public String getMessage() {
+            return message;
         }
     }
 
