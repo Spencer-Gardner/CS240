@@ -63,8 +63,7 @@ public class Server {
     private Object login(Request request, Response response) {
         try {
             LoginRequest user = gson.fromJson(request.body(), LoginRequest.class);
-//            System.out.println(user);
-//            response.status(200);
+            response.status(200);
             return gson.toJson(UserService.login(user));
         } catch (DataAccessException e) {
             response.status(e.getCode());

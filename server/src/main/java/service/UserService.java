@@ -27,7 +27,6 @@ public class UserService {
     }
 
     public static void logout(String authToken) throws DataAccessException {
-        // iterator?
-        MemoryAuthDAO.removeAuth(authToken);
+        MemoryAuthDAO.removeAuth(MemoryAuthDAO.getUser(authToken), authToken);
     }
 }

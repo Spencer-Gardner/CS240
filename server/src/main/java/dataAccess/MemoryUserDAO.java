@@ -9,6 +9,21 @@ public class MemoryUserDAO implements UserDAO {
 
     public static HashMap<String, UserData> userData = new HashMap<>();
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
     public static boolean verifyUser(String username) {
         return userData.containsKey(username);
     }
@@ -19,22 +34,14 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     public static void addUser(UserData user) throws DataAccessException {
-        try {
-            if (userData.get(user.username()) == null) {
-                userData.put(user.username(), user);
-            } else {
-                throw new DataAccessException(403, "Error: already taken");
-            }
-        } catch (Exception e) {
-            throw new DataAccessException(500, "Error: description");
+        if (userData.containsKey(user.username())) {
+            throw new DataAccessException(403, "Error: already taken");
+        } else {
+            userData.put(user.username(), user);
         }
     }
 
-    public static void clear() throws DataAccessException {
-        try {
-            userData.clear();
-        } catch (Exception e) {
-            throw new DataAccessException(500, "Error: description");
-        }
+    public static void clear() {
+        userData.clear();
     }
 }
