@@ -14,6 +14,21 @@ public class MemoryGameDAO implements GameDAO {
 
     public static HashMap<Integer, GameData> gameData = new HashMap<>();
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
     public static int addGame(String name) throws DataAccessException {
         Random random = new Random();
         int id = random.nextInt(Integer.MAX_VALUE) + 1;
@@ -21,24 +36,25 @@ public class MemoryGameDAO implements GameDAO {
         return id;
     }
 
-    public static void updateGame(String color, int id, String authToken) throws DataAccessException {
+    public static void updateGame(ChessGame.TeamColor color, int id, String authToken) throws DataAccessException {
         if (gameData.containsKey(id)) {
             GameData game = gameData.get(id);
+            String user = MemoryAuthDAO.getUser(authToken);
             if (color == null) {
                 ArrayList<String> observers = game.observers();
-                String user = MemoryAuthDAO.getUser(authToken);
                 ArrayList<String> combinedList = new ArrayList<>(observers);
                 combinedList.add(user);
-                gameData.replace(game.gameID(), new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game(), combinedList));
-            } else if (color.equals("White")) {
+                gameData.put(game.gameID(), new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game(), combinedList));
+            } else if (color.equals(ChessGame.TeamColor.WHITE)) {
                 if (game.whiteUsername() == null) {
-                    gameData.replace(game.gameID(), new GameData(game.gameID(), MemoryAuthDAO.getUser(authToken), game.blackUsername(), game.gameName(), game.game(), game.observers()));
+                    System.out.println("WHITE!!!!!!!!!!!!!!!!");
+                    gameData.put(game.gameID(), new GameData(game.gameID(), user, game.blackUsername(), game.gameName(), game.game(), game.observers()));
                 } else {
                     throw new DataAccessException(403, "Error: already taken");
                 }
-            } else if (color.equals("Black")) {
+            } else if (color.equals(ChessGame.TeamColor.BLACK)) {
                 if (game.blackUsername() == null) {
-                    gameData.replace(game.gameID(), new GameData(game.gameID(), game.whiteUsername(), MemoryAuthDAO.getUser(authToken), game.gameName(), game.game(), game.observers()));
+                    gameData.put(game.gameID(), new GameData(game.gameID(), game.whiteUsername(), user, game.gameName(), game.game(), game.observers()));
                 } else {
                     throw new DataAccessException(403, "Error: already taken");
                 }
