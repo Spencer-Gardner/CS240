@@ -48,7 +48,6 @@ public class Server {
     private Object register(Request request, Response response) {
         try {
             UserData newUser = gson.fromJson(request.body(), UserData.class);
-            response.status(200);
             return gson.toJson(UserService.register(newUser));
         } catch (JsonSyntaxException e) {
             response.status(400);
@@ -63,7 +62,6 @@ public class Server {
     private Object login(Request request, Response response) {
         try {
             LoginRequest user = gson.fromJson(request.body(), LoginRequest.class);
-            response.status(200);
             return gson.toJson(UserService.login(user));
         } catch (DataAccessException e) {
             response.status(e.getCode());
@@ -75,7 +73,6 @@ public class Server {
         try {
             String authToken = request.headers("Authorization");
             UserService.logout(authToken);
-            response.status(200);
             return "{}";
         } catch (DataAccessException e) {
             response.status(e.getCode());
@@ -86,7 +83,6 @@ public class Server {
     private Object listGames(Request request, Response response) {
         try {
             String authToken = request.headers("Authorization");
-            response.status(200);
             return gson.toJson(GameService.listGames(authToken));
         } catch (DataAccessException e) {
             response.status(e.getCode());
@@ -98,7 +94,6 @@ public class Server {
         try {
             String authToken = request.headers("Authorization");
             CreateRequest game = gson.fromJson(request.body(), CreateRequest.class);
-            response.status(200);
             return gson.toJson(GameService.createGame(game, authToken));
         } catch (JsonSyntaxException e) {
             response.status(400);
@@ -115,7 +110,6 @@ public class Server {
             String authToken = request.headers("Authorization");
             JoinRequest game = gson.fromJson(request.body(), JoinRequest.class);
             GameService.joinGame(game, authToken);
-            response.status(200);
             return "{}";
         } catch (JsonSyntaxException e) {
             response.status(400);

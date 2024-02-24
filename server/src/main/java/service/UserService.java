@@ -12,6 +12,9 @@ import javax.xml.crypto.Data;
 public class UserService {
 
     public static AuthData register(UserData user) throws DataAccessException {
+        if (user.username() == null || user.password() == null || user.email() == null) {
+            throw new DataAccessException(400, "Error: bad request");
+        }
         MemoryUserDAO.addUser(user);
         MemoryAuthDAO.addAuth(user.username());
         return new AuthData(MemoryAuthDAO.getAuth(user.username()), user.username());
