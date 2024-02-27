@@ -13,10 +13,10 @@ public class KingMove implements PieceMove {
 
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return Calculator(board, myPosition);
+        return calculator(board, myPosition);
     }
 
-    public static Collection<ChessMove> Calculator(ChessBoard board, ChessPosition position) {
+    public static Collection<ChessMove> calculator(ChessBoard board, ChessPosition position) {
         int row = position.getRow();
         int col = position.getColumn();
         ChessPosition start = new ChessPosition(row, col);
@@ -29,7 +29,7 @@ public class KingMove implements PieceMove {
             for (int j = -1; j <= 1; j++) {
                 r = row + i;
                 c = col + j;
-                if (validPosition(r, c)) {
+                if (PieceMove.validPosition(r, c)) {
                     ChessPiece square = board.getPiece(new ChessPosition(r, c));
                     if (square == null || piece.getTeamColor() != square.getTeamColor()) {
                         validMoves.add(new ChessMove(start, new ChessPosition(r, c), null));
@@ -39,10 +39,6 @@ public class KingMove implements PieceMove {
         }
 
         return validMoves;
-    }
-
-    public static boolean validPosition(int x, int y) {
-        return x >= 1 && x <= 8 && y >= 1 && y <= 8;
     }
 
 }
