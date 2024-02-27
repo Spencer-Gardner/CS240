@@ -47,7 +47,6 @@ public class MemoryGameDAO implements GameDAO {
                 gameData.put(game.gameID(), new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game(), combinedList));
             } else if (color.equals(ChessGame.TeamColor.WHITE)) {
                 if (game.whiteUsername() == null) {
-                    System.out.println("WHITE!!!!!!!!!!!!!!!!");
                     gameData.put(game.gameID(), new GameData(game.gameID(), user, game.blackUsername(), game.gameName(), game.game(), game.observers()));
                 } else {
                     throw new DataAccessException(403, "Error: already taken");
