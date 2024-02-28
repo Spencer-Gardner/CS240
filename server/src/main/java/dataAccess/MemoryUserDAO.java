@@ -1,36 +1,19 @@
 package dataAccess;
 
 import model.UserData;
-
 import java.util.HashMap;
-import model.UserData;
 
 public class MemoryUserDAO implements UserDAO {
 
     public static HashMap<String, UserData> userData = new HashMap<>();
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
-    }
-
-    public static boolean verifyUser(String username) {
-        return userData.containsKey(username);
-    }
-
-    public static boolean checkPassword(String username, String password) {
+    public static boolean verifyUser(String username, String password) {
         UserData user = userData.get(username);
-        return user.password().equals(password);
+        if (userData.containsKey(username)) {
+            return user.password().equals(password);
+        } else {
+            return false;
+        }
     }
 
     public static void addUser(UserData user) throws DataAccessException {

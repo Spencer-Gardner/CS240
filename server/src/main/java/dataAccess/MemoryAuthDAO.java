@@ -1,9 +1,6 @@
 package dataAccess;
 
-import model.UserData;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.security.SecureRandom;
 import java.util.Map;
 import java.util.UUID;
 
@@ -11,49 +8,28 @@ public class MemoryAuthDAO implements AuthDAO {
 
     public static HashMap<String, String> authData = new HashMap<>();
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
-    }
-
-    public static boolean verifyAuth(String authToken) throws DataAccessException {
-        return authData.containsValue(authToken);
-    }
-
-    public static String getAuth(String username) throws DataAccessException {
-        if (authData.containsKey(username)) {
-            return authData.get(username);
-        }
-        throw new DataAccessException(401, "Error: unauthorized");
+    public static boolean verifyAuth(String authToken) {
+        return authData.containsKey(authToken);
     }
 
     public static String getUser(String authToken) throws  DataAccessException {
         for (Map.Entry<String, String> entry : authData.entrySet()) {
-            if (entry.getValue().equals(authToken)) {
-                return entry.getKey();
+            if (entry.getKey().equals(authToken)) {
+                return entry.getValue();
             }
         }
-        throw new DataAccessException(401, "Error: unauthorized");
+        throw new DataAccessException(400, "Error: bad request");
     }
 
-    public static void addAuth(String username) {
-        String token = UUID.randomUUID().toString();
-        authData.put(username, token);
+    public static String addAuth(String username) {
+        String authToken = UUID.randomUUID().toString();
+        authData.put(authToken, username);
+        return authToken;
     }
 
-    public static void removeAuth(String username, String authToken) throws DataAccessException {
-        if (authData.containsValue(authToken)) {
-            authData.remove(username);
+    public static void removeAuth(String authToken) throws DataAccessException {
+        if (authData.containsKey(authToken)) {
+            authData.remove(authToken);
         } else {
             throw new DataAccessException(401, "Error: unauthorized");
         }

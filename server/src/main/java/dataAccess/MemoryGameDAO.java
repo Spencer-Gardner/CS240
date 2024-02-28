@@ -1,35 +1,14 @@
 package dataAccess;
 
-import java.util.*;
-
 import model.GameData;
-
-import java.util.concurrent.ThreadLocalRandom;
 import chess.ChessGame;
-
-import javax.xml.crypto.Data;
-
+import java.util.*;
 
 public class MemoryGameDAO implements GameDAO {
 
     public static HashMap<Integer, GameData> gameData = new HashMap<>();
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
-    }
-
-    public static int addGame(String name) throws DataAccessException {
+    public static int addGame(String name) {
         Random random = new Random();
         int id = random.nextInt(Integer.MAX_VALUE) + 1;
         gameData.put(id, new GameData(id, null, null, name, new ChessGame(), new ArrayList<>()));

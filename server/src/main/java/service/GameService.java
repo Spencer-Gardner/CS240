@@ -1,15 +1,9 @@
 package service;
 
-import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
-import dataAccess.MemoryUserDAO;
-import results.ListResult;
-import model.GameData;
-import results.CreateResult;
-import requests.CreateRequest;
-import requests.JoinRequest;
-
+import dataAccess.*;
+import model.*;
+import requests.*;
+import results.*;
 import java.util.ArrayList;
 
 public class GameService {

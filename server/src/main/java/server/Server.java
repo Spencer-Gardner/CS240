@@ -1,16 +1,12 @@
 package server;
 
-import java.nio.file.Paths;
-import com.google.gson.JsonSyntaxException;
-import dataAccess.DataAccessException;
 import spark.*;
 import com.google.gson.Gson;
-import model.*;
+import com.google.gson.JsonSyntaxException;
 import service.*;
-import requests.LoginRequest;
-import requests.JoinRequest;
-import requests.CreateRequest;
-import javax.xml.crypto.Data;
+import model.*;
+import requests.*;
+import dataAccess.DataAccessException;
 
 public class Server {
 
@@ -37,7 +33,6 @@ public class Server {
     private Object clear(Request request, Response response) {
         try {
             ApplicationService.clear();
-            response.status(200);
             return "{}";
         } catch (DataAccessException e) {
             response.status(e.getCode());
@@ -121,15 +116,8 @@ public class Server {
         }
     }
 
-    private static class ErrorResponse {
-        private final String message;
-        public ErrorResponse(String message) {
-            this.message = message;
-        }
-        public String getMessage() {
-            return message;
-        }
-    }
+    private record ErrorResponse(String message) { }
+
 
     public void stop() {
         Spark.stop();

@@ -7,7 +7,7 @@ public class DataAccessException extends Exception {
     public static int code;
     public DataAccessException(int code, String message) {
         super(message);
-        this.code = code;
+        DataAccessException.code = code;
     }
     public int getCode() {
         return code;
