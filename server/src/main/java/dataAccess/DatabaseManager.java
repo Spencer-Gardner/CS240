@@ -36,11 +36,38 @@ public class DatabaseManager {
      */
     static void createDatabase() throws DataAccessException {
         try {
-            var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
             var conn = DriverManager.getConnection(connectionUrl, user, password);
-            try (var preparedStatement = conn.prepareStatement(statement)) {
+            var dbStatement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
+            try (var preparedStatement = conn.prepareStatement(dbStatement)) {
                 preparedStatement.executeUpdate();
-                // ADD TABLE INFORMATION!!!!!!!
+            }
+            conn.setCatalog(databaseName);
+            var userStatement = """
+                    CREATE TABLE  IF NOT EXISTS  user (
+                        username VARCHAR(255) NOT NULL,
+                        userdata LONGTEXT NOT NULL,
+                        PRIMARY KEY (username)
+                    )""";
+            try (var preparedStatement = conn.prepareStatement(userStatement)) {
+                preparedStatement.executeUpdate();
+            }
+            var gameStatement = """
+                    CREATE TABLE  IF NOT EXISTS  game (
+                        id INT NOT NULL AUTO_INCREMENT,
+                        gamedata LONGTEXT NOT NULL,
+                        PRIMARY KEY (id)
+                    )""";
+            try (var preparedStatement = conn.prepareStatement(gameStatement)) {
+                preparedStatement.executeUpdate();
+            }
+            var authStatement = """
+                    CREATE TABLE  IF NOT EXISTS  auth (
+                        token VARCHAR(255) NOT NULL,
+                        username VARCHAR(255) NOT NULL,
+                        PRIMARY KEY (token)
+                    )""";
+            try (var preparedStatement = conn.prepareStatement(authStatement)) {
+                preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());

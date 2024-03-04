@@ -7,28 +7,31 @@ import results.*;
 import java.util.ArrayList;
 
 public class GameService {
+    static GameDAO gameDAO = new MemoryGameDAO();
+    static AuthDAO authDAO = new MemoryAuthDAO();
 
     public static ListResult listGames(String authToken) throws DataAccessException {
-        if (MemoryAuthDAO.verifyAuth(authToken)) {
-            return new ListResult((ArrayList<GameData>) MemoryGameDAO.listGames());
+        if (authDAO.verifyAuth(authToken)) {
+            return new ListResult((ArrayList<GameData>) gameDAO.listGames());
         } else {
             throw new DataAccessException(401, "Error: unauthorized");
         }
     }
 
     public static CreateResult createGame(CreateRequest game, String authToken) throws DataAccessException {
-        if (MemoryAuthDAO.verifyAuth(authToken)) {
-            return new CreateResult(MemoryGameDAO.addGame(game.gameName()));
+        if (authDAO.verifyAuth(authToken)) {
+            return new CreateResult(gameDAO.addGame(game.gameName()));
         } else {
             throw new DataAccessException(401, "Error: unauthorized");
         }
     }
 
     public static void joinGame(JoinRequest game, String authToken) throws DataAccessException {
-        if (MemoryAuthDAO.verifyAuth(authToken)) {
-            MemoryGameDAO.updateGame(game.playerColor(), game.gameID(), authToken);
+        if (authDAO.verifyAuth(authToken)) {
+            gameDAO.updateGame(game.playerColor(), game.gameID(), authToken);
         } else {
             throw new DataAccessException(401, "Error: unauthorized");
         }
     }
+
 }

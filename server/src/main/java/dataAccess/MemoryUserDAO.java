@@ -4,10 +4,9 @@ import model.UserData;
 import java.util.HashMap;
 
 public class MemoryUserDAO implements UserDAO {
-
     public static HashMap<String, UserData> userData = new HashMap<>();
 
-    public static boolean verifyUser(String username, String password) {
+    public boolean verifyUser(String username, String password) {
         UserData user = userData.get(username);
         if (userData.containsKey(username)) {
             return user.password().equals(password);
@@ -16,7 +15,7 @@ public class MemoryUserDAO implements UserDAO {
         }
     }
 
-    public static void addUser(UserData user) throws DataAccessException {
+    public void addUser(UserData user) throws DataAccessException {
         if (userData.containsKey(user.username())) {
             throw new DataAccessException(403, "Error: already taken");
         } else {
@@ -24,7 +23,8 @@ public class MemoryUserDAO implements UserDAO {
         }
     }
 
-    public static void clear() {
+    public void clear() {
         userData.clear();
     }
+
 }

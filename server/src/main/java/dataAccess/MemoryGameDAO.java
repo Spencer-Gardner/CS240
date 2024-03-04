@@ -5,20 +5,20 @@ import chess.ChessGame;
 import java.util.*;
 
 public class MemoryGameDAO implements GameDAO {
-
     public static HashMap<Integer, GameData> gameData = new HashMap<>();
+    static AuthDAO authDAO = new MemoryAuthDAO();
 
-    public static int addGame(String name) {
+    public int addGame(String name) {
         Random random = new Random();
         int id = random.nextInt(Integer.MAX_VALUE) + 1;
         gameData.put(id, new GameData(id, null, null, name, new ChessGame(), new ArrayList<>()));
         return id;
     }
 
-    public static void updateGame(ChessGame.TeamColor color, int id, String authToken) throws DataAccessException {
+    public void updateGame(ChessGame.TeamColor color, int id, String authToken) throws DataAccessException {
         if (gameData.containsKey(id)) {
             GameData game = gameData.get(id);
-            String user = MemoryAuthDAO.getUser(authToken);
+            String user = authDAO.getUser(authToken);
             if (color == null) {
                 ArrayList<String> observers = game.observers();
                 ArrayList<String> combinedList = new ArrayList<>(observers);
@@ -42,11 +42,12 @@ public class MemoryGameDAO implements GameDAO {
         }
     }
 
-    public static Collection<GameData> listGames() {
+    public Collection<GameData> listGames() {
         return new ArrayList<GameData>(gameData.values());
     }
 
-    public static void clear() {
+    public void clear() {
         gameData.clear();
     }
+
 }
