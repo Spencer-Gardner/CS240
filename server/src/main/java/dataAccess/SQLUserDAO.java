@@ -47,7 +47,7 @@ public class SQLUserDAO implements UserDAO {
         try (var statement = conn.createStatement()) {
             statement.executeUpdate("TRUNCATE TABLE user");
         } catch (SQLException e) {
-            throw new DataAccessException(500, "Error: ");
+            throw new DataAccessException(e.getMessage());
         }
     }
 
