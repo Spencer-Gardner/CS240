@@ -1,14 +1,10 @@
 package dataAccess;
 
-import chess.ChessGame;
+import java.sql.*;
 import com.google.gson.Gson;
 import model.GameData;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
+import chess.ChessGame;
+import java.util.*;
 
 public class SQLGameDAO implements GameDAO {
     public static Connection conn;
@@ -108,7 +104,7 @@ public class SQLGameDAO implements GameDAO {
         try (var statement = conn.createStatement()) {
             statement.executeUpdate("TRUNCATE TABLE game");
         } catch (SQLException e) {
-            throw new DataAccessException(500, "Error: " + e.getMessage());
+            throw new DataAccessException(e.getMessage());
         }
     }
 

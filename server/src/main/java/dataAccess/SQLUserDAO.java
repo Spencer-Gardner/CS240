@@ -1,9 +1,8 @@
 package dataAccess;
 
-import com.google.gson.Gson;
 import model.UserData;
-
 import java.sql.*;
+import com.google.gson.Gson;
 
 public class SQLUserDAO implements UserDAO {
     public static Connection conn;

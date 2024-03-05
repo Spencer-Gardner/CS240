@@ -4,11 +4,13 @@ import dataAccess.*;
 import model.*;
 import requests.LoginRequest;
 
+import java.sql.SQLException;
+
 public class UserService {
     static UserDAO userDAO = new MemoryUserDAO();
     static AuthDAO authDAO = new MemoryAuthDAO();
 
-    public static AuthData register(UserData user) throws DataAccessException {
+    public static AuthData register(UserData user) throws DataAccessException, SQLException {
         if (user.username() == null || user.password() == null || user.email() == null) {
             throw new DataAccessException(400, "Error: bad request");
         }
