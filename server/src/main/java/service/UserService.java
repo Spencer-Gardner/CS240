@@ -7,10 +7,22 @@ import requests.LoginRequest;
 import java.sql.SQLException;
 
 public class UserService {
-    static UserDAO userDAO = new MemoryUserDAO();
-    static AuthDAO authDAO = new MemoryAuthDAO();
+//    public static UserDAO userDAO = new MemoryUserDAO();
+//    public static AuthDAO authDAO = new MemoryAuthDAO();
 
-    public static AuthData register(UserData user) throws DataAccessException, SQLException {
+    static UserDAO userDAO;
+    static AuthDAO authDAO;
+
+    static {
+        try {
+            userDAO = new SQLUserDAO();
+            authDAO = new SQLAuthDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static AuthData register(UserData user) throws DataAccessException {
         if (user.username() == null || user.password() == null || user.email() == null) {
             throw new DataAccessException(400, "Error: bad request");
         }

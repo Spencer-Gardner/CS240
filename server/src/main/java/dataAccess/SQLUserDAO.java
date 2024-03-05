@@ -5,7 +5,7 @@ import java.sql.*;
 import com.google.gson.Gson;
 
 public class SQLUserDAO implements UserDAO {
-    public static Connection conn;
+    private final Connection conn;
 
     public SQLUserDAO() throws DataAccessException {
         conn = DatabaseManager.getConnection();
@@ -16,7 +16,7 @@ public class SQLUserDAO implements UserDAO {
         try (var statement = conn.prepareStatement("SELECT userdata FROM user WHERE username=?")) {
             statement.setString(1, username);
             try (var rs = statement.executeQuery()) {
-                while (rs.next()) {
+                if (rs.next()) {
                     var json = rs.getString("userdata");
                     user = new Gson().fromJson(json, UserData.class);
                 }
@@ -24,17 +24,13 @@ public class SQLUserDAO implements UserDAO {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
-        if (user != null) {
-            return user.password().equals(password);
-        } else {
-            return false;
-        }
+        return user != null && user.password().equals(password);
     }
 
     public void addUser(UserData user) throws DataAccessException {
         try (var statement = conn.prepareStatement("INSERT INTO user (username, userdata) VALUES (?, ?)")) {
             statement.setString(1, user.username());
-            var json = new Gson().toJson(user);
+            var json = new Gson().toJson(user, UserData.class);
             statement.setString(2, json);
             statement.executeUpdate();
         } catch (SQLException e) {
