@@ -8,6 +8,8 @@ import model.*;
 import requests.*;
 import dataAccess.DataAccessException;
 
+import java.sql.SQLException;
+
 public class Server {
 
     public int run(int desiredPort) {
