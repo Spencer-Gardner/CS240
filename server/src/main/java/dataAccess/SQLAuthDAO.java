@@ -4,13 +4,17 @@ import java.sql.*;
 import java.util.UUID;
 
 public class SQLAuthDAO implements AuthDAO {
-    public static Connection conn;
+    private final Connection conn;
+
+    public SQLAuthDAO() throws DataAccessException {
+        conn = DatabaseManager.getConnection();
+    }
 
     public boolean verifyAuth(String authToken) throws DataAccessException {
         try (var statement = conn.prepareStatement("SELECT token FROM auth WHERE token=?")) {
             statement.setString(1, authToken);
             try (var rs = statement.executeQuery()) {
-                return rs.next() && rs.getInt(1) > 0;
+                return rs.next();
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
@@ -20,7 +24,9 @@ public class SQLAuthDAO implements AuthDAO {
     public String getUser(String authToken) throws DataAccessException {
         try (var statement = conn.prepareStatement("SELECT username FROM auth WHERE token=?")) {
             statement.setString(1, authToken);
-            return statement.executeQuery().toString();
+            try (var rs = statement.executeQuery()) {
+                return rs.next() ? rs.getString(1) : null;
+            }
         } catch (SQLException e) {
             throw new DataAccessException(400, "Error: bad request");
         }
@@ -41,9 +47,12 @@ public class SQLAuthDAO implements AuthDAO {
     public void removeAuth(String authToken) throws DataAccessException {
         try (var statement = conn.prepareStatement("DELETE FROM auth WHERE token=?")) {
             statement.setString(1, authToken);
-            statement.executeUpdate();
-        }catch (SQLException e) {
-            throw new DataAccessException(401, "Error: unauthorized");
+            int affected = statement.executeUpdate();
+            if (affected == 0) {
+                throw new DataAccessException(401, "Error: unauthorized");
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
         }
     }
 
