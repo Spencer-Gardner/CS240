@@ -7,8 +7,20 @@ import results.*;
 import java.util.ArrayList;
 
 public class GameService {
-    static GameDAO gameDAO = new MemoryGameDAO();
-    static AuthDAO authDAO = new MemoryAuthDAO();
+//    public static GameDAO gameDAO = new MemoryGameDAO();
+//    public static AuthDAO authDAO = new MemoryAuthDAO();
+
+    static GameDAO gameDAO;
+    static AuthDAO authDAO;
+
+    static {
+        try {
+            gameDAO = new SQLGameDAO();
+            authDAO = new SQLAuthDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static ListResult listGames(String authToken) throws DataAccessException {
         if (authDAO.verifyAuth(authToken)) {
