@@ -25,7 +25,11 @@ public class SQLAuthDAO implements AuthDAO {
         try (var statement = conn.prepareStatement("SELECT username FROM auth WHERE token=?")) {
             statement.setString(1, authToken);
             try (var rs = statement.executeQuery()) {
-                return rs.next() ? rs.getString(1) : null;
+                if (rs.next()) {
+                   return rs.getString(1);
+                } else {
+                    throw new DataAccessException(400, "Error: bad request");
+                }
             }
         } catch (SQLException e) {
             throw new DataAccessException(400, "Error: bad request");
