@@ -7,9 +7,6 @@ import requests.LoginRequest;
 import java.sql.SQLException;
 
 public class UserService {
-//    public static UserDAO userDAO = new MemoryUserDAO();
-//    public static AuthDAO authDAO = new MemoryAuthDAO();
-
     static UserDAO userDAO;
     static AuthDAO authDAO;
 

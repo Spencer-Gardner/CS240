@@ -7,9 +7,6 @@ import results.*;
 import java.util.ArrayList;
 
 public class GameService {
-//    public static GameDAO gameDAO = new MemoryGameDAO();
-//    public static AuthDAO authDAO = new MemoryAuthDAO();
-
     static GameDAO gameDAO;
     static AuthDAO authDAO;
 
