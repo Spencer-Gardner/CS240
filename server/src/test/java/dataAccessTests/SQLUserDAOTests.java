@@ -10,16 +10,17 @@ class SQLUserDAOTests {
 
     @Test
     void addUserPositive() throws DataAccessException {
-        UserData data = new UserData("AddTest", "Pass", "@test.com");
+        UserData data = new UserData("AddPositiveTest", "Pass", "@test.com");
         SQLUserDAO sql = new SQLUserDAO();
         sql.addUser(data);
-        assertTrue(sql.verifyUser("AddTest", "Pass"));
+        assertTrue(sql.verifyUser("AddPositiveTest", "Pass"));
     }
 
     @Test
     void addUserNegative() throws DataAccessException {
-        UserData data = new UserData("AddTest", "Pass", "@test.com");
+        UserData data = new UserData("AddNegativeTest", "Pass", "@test.com");
         SQLUserDAO sql = new SQLUserDAO();
+        sql.addUser(data);
         assertThrows(DataAccessException.class, () -> sql.addUser(data));
     }
 
