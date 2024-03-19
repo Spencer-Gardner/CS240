@@ -1,14 +1,17 @@
 package ui;
 
+import java.io.IOException;
 import java.util.Scanner;
+import facade.ServerFacade;
 
 public class ClientUI {
     private static final Scanner scanner = new Scanner(System.in);
     private static boolean isLoggedIn = false;
     private static boolean isInGame = false;
     private static String authToken;
+    public static ServerFacade facade = new ServerFacade(8080);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         System.out.println("Welcome to the Chess Client UI!");
         System.out.println("Enter a command or type 'quit' to exit.");
@@ -29,7 +32,7 @@ public class ClientUI {
         scanner.close();
     }
 
-    private static void preLoginCommands(String command) {
+    private static void preLoginCommands(String command) throws IOException {
         Scanner scanner = new Scanner(System.in);
         String username;
         String password;
@@ -48,7 +51,7 @@ public class ClientUI {
                 username = scanner.nextLine();
                 System.out.print("+ Enter Password: ");
                 password = scanner.nextLine();
-//                facade.login(username, password);
+                authToken = facade.login(username, password);
                 isLoggedIn = true;
                 System.out.println("Logged In");
                 break;
@@ -57,9 +60,9 @@ public class ClientUI {
                 username = scanner.nextLine();
                 System.out.print("+ Enter Password: ");
                 password = scanner.nextLine();
-//                facade.register(username, password, email);
                 System.out.print("+ Enter Email: ");
                 email = scanner.nextLine();
+                authToken = facade.register(username, password, email);
                 System.out.println("Registered");
                 break;
             default:
@@ -68,7 +71,7 @@ public class ClientUI {
         }
     }
 
-    private static void postLoginCommands(String command) {
+    private static void postLoginCommands(String command) throws IOException {
         Scanner scanner = new Scanner(System.in);
         String name;
         String id;
@@ -86,34 +89,31 @@ public class ClientUI {
             case "quit":
                 break;
             case "logout":
-//                facade.logout();
+                facade.logout();
                 isLoggedIn = false;
                 System.out.println("Logged Out");
                 break;
             case "create":
                 System.out.print("+ Enter Game Name: ");
                 name = scanner.nextLine();
-//                facade.create(name);
-//                System.out.println("Created new game with ID... " + <ID>);
+                id = facade.create(name);
+                System.out.println("Created new game with ID... " + id);
                 break;
             case "list":
-//                facade.list();
-//                System.out.print("<List>");
+                System.out.print(facade.list());
                 break;
             case "join":
                 System.out.print("+ Enter Game ID: ");
                 id = scanner.nextLine();
                 System.out.print("+ Enter Color (white|black): ");
                 color = scanner.nextLine();
-//                facade.join(id, color);
-//                gameplay
+                facade.join(id, color);
                 isInGame = true;
                 break;
             case "observe":
                 System.out.print("+ Enter Game ID: ");
                 id = scanner.nextLine();
-//                facade.observe(id);
-//                gameplay
+                facade.observe(id);
                 isInGame = true;
                 break;
             default:
