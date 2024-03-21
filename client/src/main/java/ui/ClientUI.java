@@ -2,6 +2,8 @@ package ui;
 
 import java.io.IOException;
 import java.util.Scanner;
+
+import com.google.gson.JsonArray;
 import facade.ServerFacade;
 
 public class ClientUI {
@@ -53,7 +55,7 @@ public class ClientUI {
                 password = scanner.nextLine();
                 authToken = facade.login(username, password);
                 isLoggedIn = true;
-                System.out.println("Logged In");
+                System.out.println("Logged In --> " + authToken);
                 break;
             case "register":
                 System.out.print("+ Enter Username: ");
@@ -89,31 +91,34 @@ public class ClientUI {
             case "quit":
                 break;
             case "logout":
-                facade.logout();
+                facade.logout(authToken);
                 isLoggedIn = false;
                 System.out.println("Logged Out");
                 break;
             case "create":
                 System.out.print("+ Enter Game Name: ");
                 name = scanner.nextLine();
-                id = facade.create(name);
+                id = facade.create(authToken, name);
                 System.out.println("Created new game with ID... " + id);
                 break;
             case "list":
-                System.out.print(facade.list());
+                JsonArray games = facade.list(authToken);
+                for (int i = 0; i < games.size(); i++) {
+                    System.out.println(games.get(i).getAsJsonObject().toString());
+                }
                 break;
             case "join":
                 System.out.print("+ Enter Game ID: ");
                 id = scanner.nextLine();
                 System.out.print("+ Enter Color (white|black): ");
                 color = scanner.nextLine();
-                facade.join(id, color);
+                facade.join(authToken, id, color);
                 isInGame = true;
                 break;
             case "observe":
                 System.out.print("+ Enter Game ID: ");
                 id = scanner.nextLine();
-                facade.observe(id);
+                facade.observe(authToken, id);
                 isInGame = true;
                 break;
             default:

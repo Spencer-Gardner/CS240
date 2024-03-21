@@ -5,7 +5,6 @@ import server.Server;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 public class ServerFacadeTests {
 
     private static Server server;
