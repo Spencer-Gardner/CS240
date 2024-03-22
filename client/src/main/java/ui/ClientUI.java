@@ -129,6 +129,17 @@ public class ClientUI {
         }
     }
 
-    private static void gameplayCommands(String command) { }
+    private static void gameplayCommands(String command) {
+        switch (command.toLowerCase()) {
+            case "help":
+                System.out.println("'quit' - to exit client");
+                break;
+            case "quit":
+                break;
+            default:
+                System.out.println("Unknown command -- type 'help' for available commands.");
+                break;
+        }
+    }
 
 }
