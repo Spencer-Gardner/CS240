@@ -87,5 +87,52 @@ public class ServerFacadeTests {
         });
     }
 
+    @Test
+    @Order(9)
+    void joinPositive() throws IOException {
+        assertDoesNotThrow(() -> {
+            facade.join(authToken, id, "white");
+        });
+    }
+
+    @Test
+    @Order(10)
+    void joinNegative() throws IOException {
+        assertThrows(IOException.class, () -> {
+            facade.join(authToken, "NA", "white");
+        });
+    }
+
+    @Test
+    @Order(11)
+    void observePositive() throws IOException {
+        assertDoesNotThrow(() -> {
+            facade.observe(authToken, id);
+        });
+    }
+
+    @Test
+    @Order(12)
+    void observeNegative() throws IOException {
+        assertThrows(IOException.class, () -> {
+            facade.observe(authToken, "NA");
+        });
+    }
+
+    @Test
+    @Order(13)
+    void logoutPositive() throws IOException {
+        assertDoesNotThrow(() -> {
+            facade.logout(authToken);
+        });
+    }
+
+    @Test
+    @Order(14)
+    void logoutNegative() throws IOException {
+        assertThrows(IOException.class, () -> {
+            facade.logout("unauthorized");
+        });
+    }
 
 }
