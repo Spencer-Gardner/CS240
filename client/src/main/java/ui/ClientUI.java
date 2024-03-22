@@ -1,11 +1,10 @@
 package ui;
 
-import java.io.IOException;
 import java.util.Scanner;
-
+import facade.ServerFacade;
+import java.io.IOException;
 import chess.ChessGame;
 import com.google.gson.JsonArray;
-import facade.ServerFacade;
 
 public class ClientUI {
     private static final Scanner scanner = new Scanner(System.in);
