@@ -1,19 +1,25 @@
 package clientTests;
 
-import org.junit.jupiter.api.*;
 import server.Server;
+import facade.ServerFacade;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ServerFacadeTests {
 
     private static Server server;
+    private static ServerFacade facade;
+    private static String authToken;
+    private static String id;
 
     @BeforeAll
     public static void init() {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
+        facade = new ServerFacade(port);
     }
 
     @AfterAll
@@ -22,9 +28,64 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void register() throws Exception {
-//        var authData = facade.register("player1", "password", "p1@email.com");
-//        assertTrue(authData.authToken().length() > 10);
+    @Order(1)
+    void registerPositive() throws IOException {
+        authToken = facade.register("player1", "password", "p1@email.com");
+        assertTrue(authToken.length() > 10);
     }
+
+    @Test
+    @Order(2)
+    void registerNegative() throws IOException {
+        assertThrows(IOException.class, () -> {
+            facade.register("player1", "password", "p1@email.com");
+        });
+    }
+
+    @Test
+    @Order(3)
+    void loginPositive() throws IOException {
+        authToken = facade.login("player1", "password");
+        assertTrue(authToken.length() > 10);
+    }
+
+    @Test
+    @Order(4)
+    void loginNegative() throws IOException {
+        assertThrows(IOException.class, () -> {
+            facade.login("hacker", "attempt");
+        });
+    }
+
+    @Test
+    @Order(5)
+    void createPositive() throws IOException {
+        id = facade.create(authToken, "New Game");
+        assertNotNull(id);
+    }
+
+    @Test
+    @Order(6)
+    void createNegative() throws IOException {
+        assertThrows(IOException.class, () -> {
+           facade.create("unauthorized", "New Game");
+        });
+    }
+
+    @Test
+    @Order(7)
+    void listPositive() throws IOException {
+        String list = facade.list(authToken).toString();
+        assertTrue(list.length() > 10);
+    }
+
+    @Test
+    @Order(8)
+    void listNegative() throws IOException {
+        assertThrows(IOException.class, () -> {
+            facade.list("unauthorized");
+        });
+    }
+
 
 }
