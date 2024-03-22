@@ -3,6 +3,7 @@ package ui;
 import java.io.IOException;
 import java.util.Scanner;
 
+import chess.ChessGame;
 import com.google.gson.JsonArray;
 import facade.ServerFacade;
 
@@ -113,12 +114,14 @@ public class ClientUI {
                 System.out.print("+ Enter Color (white|black): ");
                 color = scanner.nextLine();
                 facade.join(authToken, id, color);
+                RenderBoard.drawChessBoard(new ChessGame());
                 isInGame = true;
                 break;
             case "observe":
                 System.out.print("+ Enter Game ID: ");
                 id = scanner.nextLine();
                 facade.observe(authToken, id);
+                RenderBoard.drawChessBoard(new ChessGame());
                 isInGame = true;
                 break;
             default:
