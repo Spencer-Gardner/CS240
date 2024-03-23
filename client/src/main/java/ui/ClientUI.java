@@ -1,6 +1,7 @@
 package ui;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Scanner;
 import facade.ServerFacade;
 import java.io.IOException;
@@ -55,7 +56,12 @@ public class ClientUI {
                 username = scanner.nextLine();
                 System.out.print("+ Enter Password: ");
                 password = scanner.nextLine();
-                authToken = facade.login(username, password);
+                try {
+                    authToken = facade.login(username, password);
+                } catch (IOException e) {
+                    System.out.println("Invalid");
+                    break;
+                }
                 isLoggedIn = true;
                 System.out.println("Logged In");
                 break;
@@ -66,12 +72,17 @@ public class ClientUI {
                 password = scanner.nextLine();
                 System.out.print("+ Enter Email: ");
                 email = scanner.nextLine();
-                authToken = facade.register(username, password, email);
+                try {
+                    authToken = facade.register(username, password, email);
+                } catch (IOException e) {
+                    System.out.println("Invalid");
+                    break;
+                }
                 isLoggedIn = true;
                 System.out.println("Registered... Logged In");
                 break;
             default:
-                System.out.println("Unknown command -- type 'help' for available commands.");
+                System.out.println("Unknown -- type 'help' for available commands.");
                 break;
         }
     }
@@ -94,18 +105,34 @@ public class ClientUI {
             case "quit":
                 break;
             case "logout":
-                facade.logout(authToken);
+                try {
+                    facade.logout(authToken);
+                } catch (IOException e) {
+                    System.out.println("Error");
+                    break;
+                }
                 isLoggedIn = false;
                 System.out.println("Logged Out");
                 break;
             case "create":
                 System.out.print("+ Enter Game Name: ");
                 name = scanner.nextLine();
-                id = facade.create(authToken, name);
+                try {
+                    id = facade.create(authToken, name);
+                } catch (IOException e) {
+                    System.out.println("Invalid");
+                    break;
+                }
                 System.out.println("Created new game with ID... " + id);
                 break;
             case "list":
-                JsonArray games = facade.list(authToken);
+                JsonArray games;
+                try {
+                    games = facade.list(authToken);
+                } catch (IOException e) {
+                    System.out.println("Error");
+                    break;
+                }
                 list.clear();
                 for (int i = 0; i < games.size(); i++) {
                     list.add(games.get(i).getAsJsonObject().get("gameID").getAsString());
@@ -117,19 +144,29 @@ public class ClientUI {
                 id = scanner.nextLine();
                 System.out.print("+ Enter Color (white|black): ");
                 color = scanner.nextLine();
-                facade.join(authToken, list.get(Integer.parseInt(id)), color);
+                try {
+                    facade.join(authToken, list.get(Integer.parseInt(id)), color);
+                } catch (IOException e) {
+                    System.out.println("Error");
+                    break;
+                }
                 RenderBoard.drawChessBoard(new ChessGame());
                 isInGame = true;
                 break;
             case "observe":
                 System.out.print("+ Enter Game #: ");
                 id = scanner.nextLine();
-                facade.observe(authToken, list.get(Integer.parseInt(id)));
+                try {
+                    facade.observe(authToken, list.get(Integer.parseInt(id)));
+                } catch (IOException e) {
+                    System.out.println("Error");
+                    break;
+                }
                 RenderBoard.drawChessBoard(new ChessGame());
                 isInGame = true;
                 break;
             default:
-                System.out.println("Unknown command -- type 'help' for available commands.");
+                System.out.println("Unknown -- type 'help' for available commands.");
                 break;
         }
     }
@@ -141,8 +178,11 @@ public class ClientUI {
                 break;
             case "quit":
                 break;
+            case "back":
+                isInGame = false;
+                break;
             default:
-                System.out.println("Unknown command -- type 'help' for available commands.");
+                System.out.println("Unknown -- type 'help' for available commands.");
                 break;
         }
     }
