@@ -58,7 +58,7 @@ public class ClientUI {
                 password = scanner.nextLine();
                 try {
                     authToken = facade.login(username, password);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     System.out.println("Invalid");
                     break;
                 }
@@ -74,7 +74,7 @@ public class ClientUI {
                 email = scanner.nextLine();
                 try {
                     authToken = facade.register(username, password, email);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     System.out.println("Invalid");
                     break;
                 }
@@ -107,7 +107,7 @@ public class ClientUI {
             case "logout":
                 try {
                     facade.logout(authToken);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     System.out.println("Error");
                     break;
                 }
@@ -119,17 +119,17 @@ public class ClientUI {
                 name = scanner.nextLine();
                 try {
                     id = facade.create(authToken, name);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     System.out.println("Invalid");
                     break;
                 }
-                System.out.println("Created new game with ID... " + id);
+                System.out.println("Created" + id);
                 break;
             case "list":
                 JsonArray games;
                 try {
                     games = facade.list(authToken);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     System.out.println("Error");
                     break;
                 }
@@ -146,7 +146,7 @@ public class ClientUI {
                 color = scanner.nextLine();
                 try {
                     facade.join(authToken, list.get(Integer.parseInt(id)), color);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     System.out.println("Error");
                     break;
                 }
@@ -158,7 +158,7 @@ public class ClientUI {
                 id = scanner.nextLine();
                 try {
                     facade.observe(authToken, list.get(Integer.parseInt(id)));
-                } catch (IOException e) {
+                } catch (Exception e) {
                     System.out.println("Error");
                     break;
                 }

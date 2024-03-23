@@ -87,8 +87,8 @@ public class ChessBoard {
         squares[0][0] = new ChessPiece(WHITE, ROOK);
         squares[0][1] = new ChessPiece(WHITE, KNIGHT);
         squares[0][2] = new ChessPiece(WHITE, BISHOP);
-        squares[0][3] = new ChessPiece(WHITE, QUEEN);
-        squares[0][4] = new ChessPiece(WHITE, KING);
+        squares[0][3] = new ChessPiece(WHITE, KING);
+        squares[0][4] = new ChessPiece(WHITE, QUEEN);
         squares[0][5] = new ChessPiece(WHITE, BISHOP);
         squares[0][6] = new ChessPiece(WHITE, KNIGHT);
         squares[0][7] = new ChessPiece(WHITE, ROOK);
@@ -98,8 +98,8 @@ public class ChessBoard {
         squares[7][0] = new ChessPiece(BLACK, ROOK);
         squares[7][1] = new ChessPiece(BLACK, KNIGHT);
         squares[7][2] = new ChessPiece(BLACK, BISHOP);
-        squares[7][3] = new ChessPiece(BLACK, QUEEN);
-        squares[7][4] = new ChessPiece(BLACK, KING);
+        squares[7][3] = new ChessPiece(BLACK, KING);
+        squares[7][4] = new ChessPiece(BLACK, QUEEN);
         squares[7][5] = new ChessPiece(BLACK, BISHOP);
         squares[7][6] = new ChessPiece(BLACK, KNIGHT);
         squares[7][7] = new ChessPiece(BLACK, ROOK);
