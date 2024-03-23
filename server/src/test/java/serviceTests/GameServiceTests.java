@@ -81,7 +81,7 @@ class GameServiceTests {
         try {
             AuthData authData = UserService.register(testUser);
             CreateResult result = GameService.createGame(createRequest, authData.authToken());
-            JoinRequest joinRequest = new JoinRequest(WHITE, result.gameID());
+            JoinRequest joinRequest = new JoinRequest("white", result.gameID());
             assertDoesNotThrow(() -> GameService.joinGame(joinRequest, authData.authToken()));
         } catch (DataAccessException e) {
             fail("Failed to join game");
@@ -95,7 +95,7 @@ class GameServiceTests {
         try {
             AuthData authData = UserService.register(testUser);
             CreateResult result = GameService.createGame(createRequest, authData.authToken());
-            JoinRequest joinRequest = new JoinRequest(WHITE, result.gameID());
+            JoinRequest joinRequest = new JoinRequest("white", result.gameID());
             GameService.joinGame(joinRequest, "empty");
             fail("Joined invalid game");
         } catch (DataAccessException e) {

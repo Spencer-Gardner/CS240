@@ -1,5 +1,6 @@
 package ui;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import facade.ServerFacade;
 import java.io.IOException;
@@ -11,6 +12,7 @@ public class ClientUI {
     private static boolean isLoggedIn = false;
     private static boolean isInGame = false;
     private static String authToken;
+    private static ArrayList<String> list = new ArrayList<>();
     public static ServerFacade facade = new ServerFacade(8080);
 
     public static void main(String[] args) throws IOException {
@@ -55,7 +57,7 @@ public class ClientUI {
                 password = scanner.nextLine();
                 authToken = facade.login(username, password);
                 isLoggedIn = true;
-                System.out.println("Logged In --> " + authToken);
+                System.out.println("Logged In");
                 break;
             case "register":
                 System.out.print("+ Enter Username: ");
@@ -65,7 +67,8 @@ public class ClientUI {
                 System.out.print("+ Enter Email: ");
                 email = scanner.nextLine();
                 authToken = facade.register(username, password, email);
-                System.out.println("Registered");
+                isLoggedIn = true;
+                System.out.println("Registered... Logged In");
                 break;
             default:
                 System.out.println("Unknown command -- type 'help' for available commands.");
@@ -103,23 +106,25 @@ public class ClientUI {
                 break;
             case "list":
                 JsonArray games = facade.list(authToken);
+                list.clear();
                 for (int i = 0; i < games.size(); i++) {
-                    System.out.println(games.get(i).getAsJsonObject().toString());
+                    list.add(games.get(i).getAsJsonObject().get("gameID").getAsString());
+                    System.out.println(i + " - ID: " + games.get(i).getAsJsonObject().get("gameID").getAsString() + ", Name: " + games.get(i).getAsJsonObject().get("gameName").getAsString() + ", Player 1: " + games.get(i).getAsJsonObject().get("whiteUsername").getAsString() + ", Player 2: " + games.get(i).getAsJsonObject().get("blackUsername").getAsString());
                 }
                 break;
             case "join":
-                System.out.print("+ Enter Game ID: ");
+                System.out.print("+ Enter Game #: ");
                 id = scanner.nextLine();
                 System.out.print("+ Enter Color (white|black): ");
                 color = scanner.nextLine();
-                facade.join(authToken, id, color);
+                facade.join(authToken, list.get(Integer.parseInt(id)), color);
                 RenderBoard.drawChessBoard(new ChessGame());
                 isInGame = true;
                 break;
             case "observe":
-                System.out.print("+ Enter Game ID: ");
+                System.out.print("+ Enter Game #: ");
                 id = scanner.nextLine();
-                facade.observe(authToken, id);
+                facade.observe(authToken, list.get(Integer.parseInt(id)));
                 RenderBoard.drawChessBoard(new ChessGame());
                 isInGame = true;
                 break;

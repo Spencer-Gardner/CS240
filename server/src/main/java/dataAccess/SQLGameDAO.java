@@ -22,13 +22,13 @@ public class SQLGameDAO implements GameDAO {
         int id = 0;
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("INSERT INTO game (gamedata) VALUES (?)", Statement.RETURN_GENERATED_KEYS)) {
-                var json = new Gson().toJson(new GameData(id, null, null, name, new ChessGame(), new ArrayList<>()), GameData.class);
+                var json = new Gson().toJson(new GameData(id, "", "", name, new ChessGame(), new ArrayList<>()), GameData.class);
                 statement.setString(1, json);
                 statement.executeUpdate();
                 var rs = statement.getGeneratedKeys();
                 if (rs.next()) {
                     id = rs.getInt(1);
-                    json = new Gson().toJson(new GameData(id, null, null, name, new ChessGame(), new ArrayList<>()), GameData.class);
+                    json = new Gson().toJson(new GameData(id, "", "", name, new ChessGame(), new ArrayList<>()), GameData.class);
                     try (var updateStatement = conn.prepareStatement("UPDATE game SET gamedata = ? WHERE id = ?")) {
                         updateStatement.setString(1, json);
                         updateStatement.setInt(2, id);
@@ -42,7 +42,7 @@ public class SQLGameDAO implements GameDAO {
         return id;
     }
 
-    public void updateGame(ChessGame.TeamColor color, int id, String authToken) throws DataAccessException {
+    public void updateGame(String color, int id, String authToken) throws DataAccessException {
         GameData game = null;
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("SELECT gamedata FROM game WHERE id=?")) {
@@ -68,8 +68,8 @@ public class SQLGameDAO implements GameDAO {
                         statement.setString(1, json);
                         statement.executeUpdate();
                     }
-                } else if (color.equals(ChessGame.TeamColor.WHITE)) {
-                    if (game.whiteUsername() == null) {
+                } else if (color.equalsIgnoreCase("white")) {
+                    if (game.whiteUsername().isEmpty()) {
                         try (var statement = conn.prepareStatement("UPDATE game SET gamedata=? WHERE id=?")) {
                             statement.setInt(2, id);
                             var json = new Gson().toJson(new GameData(game.gameID(), user, game.blackUsername(), game.gameName(), game.game(), game.observers()), GameData.class);
@@ -79,8 +79,8 @@ public class SQLGameDAO implements GameDAO {
                     } else {
                         throw new DataAccessException(403, "Error: already taken");
                     }
-                } else if (color.equals(ChessGame.TeamColor.BLACK)) {
-                    if (game.blackUsername() == null) {
+                } else if (color.equalsIgnoreCase("black")) {
+                    if (game.blackUsername().isEmpty()) {
                         try (var statement = conn.prepareStatement("UPDATE game SET gamedata=? WHERE id=?")) {
                             statement.setInt(2, id);
                             var json = new Gson().toJson(new GameData(game.gameID(), game.whiteUsername(), user, game.gameName(), game.game(), game.observers()), GameData.class);

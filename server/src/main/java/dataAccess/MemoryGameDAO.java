@@ -15,7 +15,7 @@ public class MemoryGameDAO implements GameDAO {
         return id;
     }
 
-    public void updateGame(ChessGame.TeamColor color, int id, String authToken) throws DataAccessException {
+    public void updateGame(String color, int id, String authToken) throws DataAccessException {
         if (gameData.containsKey(id)) {
             GameData game = gameData.get(id);
             String user = authDAO.getUser(authToken);
@@ -24,13 +24,13 @@ public class MemoryGameDAO implements GameDAO {
                 ArrayList<String> combinedList = new ArrayList<>(observers);
                 combinedList.add(user);
                 gameData.put(game.gameID(), new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game(), combinedList));
-            } else if (color.equals(ChessGame.TeamColor.WHITE)) {
+            } else if (color.equalsIgnoreCase("white")) {
                 if (game.whiteUsername() == null) {
                     gameData.put(game.gameID(), new GameData(game.gameID(), user, game.blackUsername(), game.gameName(), game.game(), game.observers()));
                 } else {
                     throw new DataAccessException(403, "Error: already taken");
                 }
-            } else if (color.equals(ChessGame.TeamColor.BLACK)) {
+            } else if (color.equalsIgnoreCase("black")) {
                 if (game.blackUsername() == null) {
                     gameData.put(game.gameID(), new GameData(game.gameID(), game.whiteUsername(), user, game.gameName(), game.game(), game.observers()));
                 } else {

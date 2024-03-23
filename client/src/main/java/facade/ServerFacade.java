@@ -51,8 +51,8 @@ public class ServerFacade {
 
     public void join(String authToken, String id, String color) throws IOException {
         JsonObject json = new JsonObject();
-        json.addProperty("gameID", id);
         json.addProperty("playerColor", color);
+        json.addProperty("gameID", id);
         sendRequest("/game", "PUT", authToken, json);
     }
 

@@ -27,7 +27,7 @@ class SQLGameDAOTests {
         SQLGameDAO sql = new SQLGameDAO();
         SQLAuthDAO asql = new SQLAuthDAO();
         usql.addUser(new UserData("UpdateUser", "Pass", "@test.com"));
-        assertDoesNotThrow(() -> sql.updateGame(ChessGame.TeamColor.WHITE, sql.addGame("Update"), asql.addAuth("UpdateUser")));
+        assertDoesNotThrow(() -> sql.updateGame("white", sql.addGame("Update"), asql.addAuth("UpdateUser")));
     }
 
     @Test
@@ -38,8 +38,8 @@ class SQLGameDAOTests {
         int id = sql.addGame("UpdateNegative");
         usql.addUser(new UserData("UpdateNegativeUser", "Pass", "@test.com"));
         String token = asql.addAuth("UpdateUser");
-        sql.updateGame(ChessGame.TeamColor.WHITE, id, token);
-        assertThrows(DataAccessException.class, () -> sql.updateGame(ChessGame.TeamColor.WHITE, id, token));
+        sql.updateGame("white", id, token);
+        assertThrows(DataAccessException.class, () -> sql.updateGame("white", id, token));
     }
 
     @Test
