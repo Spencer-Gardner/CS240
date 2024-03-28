@@ -1,20 +1,30 @@
 package ui;
 
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Scanner;
 import facade.ServerFacade;
 import java.io.IOException;
 import chess.ChessGame;
 import com.google.gson.JsonArray;
+import facade.WebSocketFacade;
 
 public class ClientUI {
     private static final Scanner scanner = new Scanner(System.in);
     private static boolean isLoggedIn = false;
     private static boolean isInGame = false;
     private static String authToken;
+    private static String color;
     private static ArrayList<String> list = new ArrayList<>();
     public static ServerFacade facade = new ServerFacade(8080);
+    public static WebSocketFacade socket;
+
+    static {
+        try {
+            socket = new WebSocketFacade("http://localhost:8080");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static void main(String[] args) throws IOException {
 
@@ -91,7 +101,6 @@ public class ClientUI {
         Scanner scanner = new Scanner(System.in);
         String name;
         String id;
-        String color;
         switch (command.toLowerCase()) {
             case "help":
                 System.out.println("'create' - to create a new game");
@@ -162,6 +171,7 @@ public class ClientUI {
                     System.out.println("Error");
                     break;
                 }
+                // retrieve game data + add color argument to render
                 RenderBoard.drawChessBoard(new ChessGame());
                 isInGame = true;
                 break;
@@ -174,12 +184,29 @@ public class ClientUI {
     private static void gameplayCommands(String command) {
         switch (command.toLowerCase()) {
             case "help":
-                System.out.println("'quit' - to exit client");
+                System.out.println("'redraw' - to redraw the chess board");
+                System.out.println("'leave' - to exit the game");
+                System.out.println("'move' - to make a move");
+                System.out.println("'resign' - to resign");
+                System.out.println("'highlight' - to highlight legal moves");
                 break;
-            case "quit":
+            case "redraw":
+                RenderBoard.drawChessBoard(new ChessGame());
                 break;
-            case "back":
-                isInGame = false;
+            case "leave":
+                // websocket
+                // back ui
+                break;
+            case "move":
+                // update game data
+                RenderBoard.drawChessBoard(new ChessGame());
+                break;
+            case "resign":
+                // websocket
+                // back ui
+                break;
+            case "highlight":
+                // legal moves for given piece
                 break;
             default:
                 System.out.println("Unknown -- type 'help' for available commands.");

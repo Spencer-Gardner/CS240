@@ -1,6 +1,7 @@
 package server;
 
 import spark.*;
+import server.websocket.WebSocketHandler;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import service.*;
@@ -14,6 +15,8 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/connect", new WebSocketHandler());
 
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);

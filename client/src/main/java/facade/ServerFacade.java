@@ -54,6 +54,7 @@ public class ServerFacade {
         json.addProperty("playerColor", color);
         json.addProperty("gameID", id);
         sendRequest("/game", "PUT", authToken, json);
+        sendRequest("/connection", "webSocket", null, null);
     }
 
     public void observe(String authToken, String id) throws IOException {
@@ -61,6 +62,7 @@ public class ServerFacade {
         json.addProperty("gameID", id);
         json.addProperty("playerColor", "");
         sendRequest("/game", "PUT", authToken, json);
+        sendRequest("/connection", "webSocket", null, null);
     }
 
     private static JsonObject sendRequest(String path, String method, String header, Object body) throws IOException {
