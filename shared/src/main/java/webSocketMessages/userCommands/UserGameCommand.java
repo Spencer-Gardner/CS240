@@ -3,11 +3,8 @@ package webSocketMessages.userCommands;
 import java.util.Objects;
 
 public class UserGameCommand {
-
-    public UserGameCommand(String authToken) {
-        this.authToken = authToken;
-    }
-
+    private final String authToken;
+    protected CommandType commandType;
     public enum CommandType {
         JOIN_PLAYER,
         JOIN_OBSERVER,
@@ -16,9 +13,9 @@ public class UserGameCommand {
         RESIGN
     }
 
-    protected CommandType commandType;
-
-    private final String authToken;
+    public UserGameCommand(String authToken) {
+        this.authToken = authToken;
+    }
 
     public String getAuthString() {
         return authToken;
