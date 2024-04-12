@@ -1,9 +1,12 @@
 package service;
 
+import chess.ChessGame;
 import dataAccess.*;
 import model.*;
 import requests.*;
 import results.*;
+
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class GameService {
@@ -41,6 +44,14 @@ public class GameService {
         } else {
             throw new DataAccessException(401, "Error: unauthorized");
         }
+    }
+
+    public static ChessGame getGame(int id) throws DataAccessException {
+        return gameDAO.getGame(id);
+    }
+
+    public static void updateBoard(int id, ChessGame newGame) throws DataAccessException, SQLException {
+        gameDAO.updateBoard(id, newGame);
     }
 
 }

@@ -16,4 +16,8 @@ public interface GameDAO {
 
     void clear() throws DataAccessException;
 
+    ChessGame getGame(int id) throws DataAccessException;
+
+    void updateBoard(int id, ChessGame newGame) throws DataAccessException, SQLException;
+
 }

@@ -124,4 +124,51 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
+    public ChessGame getGame(int id) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("SELECT gamedata FROM game WHERE id=?")) {
+                statement.setInt(1, id);
+                try (var rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        var json = rs.getString("gamedata");
+                        GameData game = new Gson().fromJson(json, GameData.class);
+                        return game.game();
+                    } else {
+                        throw new DataAccessException(400, "Error: bad request");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    public void updateBoard(int id, ChessGame newGame) throws DataAccessException, SQLException {
+        GameData game = null;
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("SELECT gamedata FROM game WHERE id=?")) {
+                statement.setInt(1, id);
+                try (var rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        var json = rs.getString("gamedata");
+                        game = new Gson().fromJson(json, GameData.class);
+                    } else {
+                        throw new DataAccessException(400, "Error: bad request");
+                    }
+                }
+            }
+        }
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("UPDATE game SET gamedata=? WHERE id=?")) {
+                statement.setInt(2, id);
+                var json = new Gson().toJson(new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), newGame, game.observers()), GameData.class);
+                statement.setString(1, json);
+                statement.executeUpdate();
+            }
+        }
+        catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
 }

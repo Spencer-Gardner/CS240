@@ -2,6 +2,8 @@ package dataAccess;
 
 import model.GameData;
 import chess.ChessGame;
+
+import java.sql.SQLException;
 import java.util.*;
 
 public class MemoryGameDAO implements GameDAO {
@@ -48,6 +50,16 @@ public class MemoryGameDAO implements GameDAO {
 
     public void clear() {
         gameData.clear();
+    }
+
+    @Override
+    public ChessGame getGame(int id) throws DataAccessException {
+        return null;
+    }
+
+    @Override
+    public void updateBoard(int id, ChessGame newGame) throws DataAccessException, SQLException {
+
     }
 
 }
