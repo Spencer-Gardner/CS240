@@ -1,8 +1,6 @@
-package facade;
-
 import server.Server;
 
-public class OpenServer {
+public class ServerMain {
 
     public static void main(String[] args) {
         int port = 8080;
