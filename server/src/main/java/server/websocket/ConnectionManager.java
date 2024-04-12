@@ -2,7 +2,9 @@ package server.websocket;
 
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
+import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
+import webSocketMessages.serverMessages.ServerMessage;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -10,30 +12,64 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
-    public final ConcurrentHashMap<Integer, HashMap<String, Session>> connections = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, HashMap<String, Session>> connections;
 
-    public void add(int gameID, String authToken, Session session) {
-        connections.computeIfAbsent(gameID, k -> new HashMap<>()).put(authToken, session);
+    public ConnectionManager() {
+        this.connections = new ConcurrentHashMap<>();
     }
 
-    public void remove(int gameID, String authToken) {
+    public void addSessionToGame(int gameID, String authToken, Session session) {
         HashMap<String, Session> game = connections.get(gameID);
-        game.remove(authToken);
+        if (game == null) {
+            HashMap<String, Session> newConnection = new HashMap<>();
+            newConnection.put(authToken, session);
+            connections.put(gameID, newConnection);
+        } else {
+            game.put(authToken, session);
+            connections.put(gameID, game);
+        }
     }
 
-    public void broadcast(int gameId, String authToken, NotificationMessage notification) throws IOException {
-        HashMap<String, Session> gameConnections = connections.get(gameId);
-        if (gameConnections != null) {
-            var iterator = gameConnections.entrySet().iterator();
-            while (iterator.hasNext()) {
-                var entry = iterator.next();
-                String token = entry.getKey();
-                Session session = entry.getValue();
-                if (session.isOpen() && !Objects.equals(token, authToken)) {
-                    session.getRemote().sendString(new Gson().toJson(notification));
-                } else {
-                    iterator.remove();
+    public HashMap<String, Session> getSessionsForGame(int gameID) {
+        return connections.get(gameID);
+    }
+
+    public void removeSessionFromGame(int gameID, String authToken, Session session) {
+        HashMap<String, Session> game = connections.get(gameID);
+        if (session.isOpen()) {
+            game.remove(authToken, session);
+            session.close();
+        }
+    }
+
+    public void sendMessage(int gameID, LoadGameMessage message, String authToken) throws IOException {
+        String messageJSON = new Gson().toJson(message);
+        Session session = connections.get(gameID).get(authToken);
+        if (session.isOpen()) {
+            session.getRemote().sendString(messageJSON);
+        }
+    }
+
+    public void broadcast(int gameID, NotificationMessage message, String exceptAuth) throws IOException {
+        String messageJSON = new Gson().toJson(message);
+        HashMap<String, Session> relevantSessions = getSessionsForGame(gameID);
+        for (String authToken : relevantSessions.keySet()) {
+            Session session = connections.get(gameID).get(authToken);
+            if (session.isOpen()) {
+                if (!authToken.equals(exceptAuth)) {
+                    session.getRemote().sendString(messageJSON);
                 }
+            }
+        }
+    }
+
+    public void broadcastAll(int gameID, ServerMessage message) throws IOException {
+        String messageJSON = new Gson().toJson(message);
+        HashMap<String, Session> relevantSessions = getSessionsForGame(gameID);
+        for (String authToken : relevantSessions.keySet()) {
+            Session session = connections.get(gameID).get(authToken);
+            if (session.isOpen()) {
+                session.getRemote().sendString(messageJSON);
             }
         }
     }
