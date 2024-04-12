@@ -1,5 +1,6 @@
 package server;
 
+import server.websocket.ConnectionManager;
 import spark.*;
 import server.websocket.WebSocketHandler;
 import com.google.gson.Gson;
@@ -10,13 +11,18 @@ import requests.*;
 import dataAccess.DataAccessException;
 
 public class Server {
+    private final WebSocketHandler webSocketHandler;
+
+    public Server() {
+        webSocketHandler = new WebSocketHandler(new ConnectionManager());
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
 
-        Spark.webSocket("/connect", new WebSocketHandler());
+        Spark.webSocket("/connect", webSocketHandler);
 
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);
