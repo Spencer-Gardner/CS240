@@ -54,4 +54,17 @@ public class GameService {
         gameDAO.updateBoard(id, newGame);
     }
 
+    public static String getWhiteUser(int id) throws DataAccessException {
+        return gameDAO.getWhiteUser(id);
+    }
+
+    public static String getBlackUser(int id) throws DataAccessException {
+        return gameDAO.getBlackUser(id);
+    }
+
+    public static void removePlayer(int id, String color) throws SQLException, DataAccessException {
+        gameDAO.removePlayer(id, color);
+    }
+
+
 }

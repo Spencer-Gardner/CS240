@@ -171,4 +171,82 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
+    public String getWhiteUser(int id) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("SELECT gamedata FROM game WHERE id=?")) {
+                statement.setInt(1, id);
+                try (var rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        var json = rs.getString("gamedata");
+                        GameData game = new Gson().fromJson(json, GameData.class);
+                        return game.whiteUsername();
+                    } else {
+                        throw new DataAccessException(400, "Error: bad request");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    public String getBlackUser(int id) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("SELECT gamedata FROM game WHERE id=?")) {
+                statement.setInt(1, id);
+                try (var rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        var json = rs.getString("gamedata");
+                        GameData game = new Gson().fromJson(json, GameData.class);
+                        return game.blackUsername();
+                    } else {
+                        throw new DataAccessException(400, "Error: bad request");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    public void removePlayer(int id, String color) throws DataAccessException, SQLException {
+        GameData game = null;
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("SELECT gamedata FROM game WHERE id=?")) {
+                statement.setInt(1, id);
+                try (var rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        var json = rs.getString("gamedata");
+                        game = new Gson().fromJson(json, GameData.class);
+                    } else {
+                        throw new DataAccessException(400, "Error: bad request");
+                    }
+                }
+            }
+        }
+        if (Objects.equals(color, "WHITE")) {
+            try (var conn = DatabaseManager.getConnection()) {
+                try (var statement = conn.prepareStatement("UPDATE game SET gamedata=? WHERE id=?")) {
+                    statement.setInt(2, id);
+                    var json = new Gson().toJson(new GameData(game.gameID(), "", game.blackUsername(), game.gameName(), game.game(), game.observers()), GameData.class);
+                    statement.setString(1, json);
+                    statement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                throw new DataAccessException(e.getMessage());
+            }
+        } else if (Objects.equals(color, "BLACK")) {
+            try (var conn = DatabaseManager.getConnection()) {
+                try (var statement = conn.prepareStatement("UPDATE game SET gamedata=? WHERE id=?")) {
+                    statement.setInt(2, id);
+                    var json = new Gson().toJson(new GameData(game.gameID(), game.whiteUsername(), "", game.gameName(), game.game(), game.observers()), GameData.class);
+                    statement.setString(1, json);
+                    statement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                throw new DataAccessException(e.getMessage());
+            }
+        }
+    }
+
 }

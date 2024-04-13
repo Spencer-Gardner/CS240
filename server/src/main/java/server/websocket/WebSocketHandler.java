@@ -1,9 +1,11 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
+import dataAccess.GameDAO;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -16,6 +18,7 @@ import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Objects;
 
 @WebSocket
 public class WebSocketHandler {
@@ -27,8 +30,7 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, DataAccessException, InvalidMoveException, SQLException {
-        System.out.print("INOIBUHIOHUGOBNIO");
-        var command = new Gson().fromJson(message, UserGameCommand.class);
+        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
             case JOIN_PLAYER:
                 JoinPlayerCommand joinPlayerCommand = new Gson().fromJson(message, JoinPlayerCommand.class);
@@ -53,64 +55,187 @@ public class WebSocketHandler {
         }
     }
 
-    private void joinPlayer(JoinPlayerCommand command, Session session) throws IOException, DataAccessException {
+    private void joinPlayer(JoinPlayerCommand command, Session session) throws IOException {
         try {
-            System.out.print("OUIHOBIONODNOVNDOVND");
-            connections.add(command.getGameID(), command.getAuthString(), session);
-            var notification = new LoadGameMessage(GameService.getGame(command.getGameID()));
-            String json = new Gson().toJson(notification);
-            session.getRemote().sendString(json);
-            var message = String.format("%s joined %s team", UserService.getUser(command.getAuthString()), command.getPlayerColor());
-            connections.broadcast(command.getGameID(), command.getAuthString(), new NotificationMessage(message));
+            String authToken = command.getAuthString();
+            if (checkAuth(authToken)) {
+                sendError(session, "* INVALID AUTHORIZATION *");
+                return;
+            }
+            int gameID = command.getGameID();
+            if (checkID(gameID)) {
+                sendError(session, "* INVALID ID *");
+                return;
+            }
+            String user = UserService.getUser(authToken);
+            String white = GameService.getWhiteUser(gameID);
+            String black = GameService.getBlackUser(gameID);
+            ChessGame.TeamColor playerColor = command.getPlayerColor();
+            if (playerColor.equals(ChessGame.TeamColor.WHITE)) {
+                if (white == null || !white.equals(user)) {
+                    sendError(session, "* INVALID COLOR *");
+                    return;
+                }
+            } else if (playerColor.equals(ChessGame.TeamColor.BLACK)) {
+                if (black == null || !black.equals(user)) {
+                    sendError(session, "* INVALID COLOR *");
+                    return;
+                }
+            }
+            connections.addSessionToGame(gameID, authToken, session);
+            connections.sendMessage(gameID, new LoadGameMessage(GameService.getGame(gameID)), authToken);
+            connections.broadcast(gameID, new NotificationMessage(user + " joined " + playerColor), authToken);
         } catch (Exception e) {
-            String error = new Gson().toJson(new ErrorMessage("Error"));
-            session.getRemote().sendString(error);
+            sendError(session, "* ERROR *");
         }
     }
 
     private void joinObserver(JoinObserverCommand command, Session session) throws IOException, DataAccessException {
         try {
-            connections.add(command.getGameID(), command.getAuthString(), session);
-            var notification = new LoadGameMessage(GameService.getGame(command.getGameID()));
-            String json = new Gson().toJson(notification);
-            session.getRemote().sendString(json);
-            var message = String.format("%s joined as observer", UserService.getUser(command.getAuthString()));
-            connections.broadcast(command.getGameID(), command.getAuthString(), new NotificationMessage(message));
+            String authToken = command.getAuthString();
+            if (checkAuth(authToken)) {
+                sendError(session, "* INVALID AUTHORIZATION *");
+                return;
+            }
+            int gameID = command.getGameID();
+            if (checkID(gameID)) {
+                sendError(session, "* INVALID ID *");
+                return;
+            }
+            String user = UserService.getUser(authToken);
+            connections.addSessionToGame(gameID, authToken, session);
+            connections.sendMessage(gameID, new LoadGameMessage(GameService.getGame(gameID)), authToken);
+            connections.broadcast(gameID, new NotificationMessage(user + " joined as observer"), authToken);
         } catch (Exception e) {
-            String error = new Gson().toJson(new ErrorMessage("Error"));
-            session.getRemote().sendString(error);
+            sendError(session, "* ERROR *");
         }
     }
 
     private void move(MakeMoveCommand command, Session session) throws IOException, DataAccessException, InvalidMoveException, SQLException {
         try {
-            ChessGame game = GameService.getGame(command.getGameID());
-            game.makeMove(command.getMove());
-            GameService.updateBoard(command.getGameID(), game);
-            var notification = new LoadGameMessage(GameService.getGame(command.getGameID()));
-            String json = new Gson().toJson(notification);
-            session.getRemote().sendString(json);
-            var message = String.format("%s moved... %s", UserService.getUser(command.getAuthString()), command.getMove());
-            connections.broadcast(command.getGameID(), command.getAuthString(), new NotificationMessage(message));
+            String authToken = command.getAuthString();
+            if (checkAuth(authToken)) {
+                sendError(session, "* INVALID AUTHORIZATION *");
+                return;
+            }
+            int gameID = command.getGameID();
+            if (checkID(gameID)) {
+                sendError(session, "* INVALID ID *");
+                return;
+            }
+            String user = UserService.getUser(authToken);
+            String white = GameService.getWhiteUser(gameID);
+            String black = GameService.getBlackUser(gameID);
+            ChessGame game = GameService.getGame(gameID);
+            ChessMove move = command.getMove();
+            if (!game.validMoves(move.getStartPosition()).contains(move)) {
+                sendError(session, "* INVALID MOVE *");
+                return;
+            }
+            if (!white.equals(user) && !black.equals(user)) {
+                sendError(session, "* INVALID OBSERVER MOVE *");
+                return;
+            }
+            if (game.getTeamTurn() == ChessGame.TeamColor.WHITE && Objects.equals(black, user)) {
+                sendError(session, "* INVALID TURN *");
+                return;
+            } else if (game.getTeamTurn() == ChessGame.TeamColor.BLACK && white.equals(user)) {
+                sendError(session, "* INVALID TURN *");
+                return;
+            }
+            if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
+                connections.broadcast(gameID, new NotificationMessage("--" + white + " IN CHECK --"), authToken);
+            }
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                connections.broadcast(gameID, new NotificationMessage("--" + white + " IN CHECKMATE --"), authToken);
+            }
+            if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
+                connections.broadcast(gameID, new NotificationMessage("--" + black + " IN CHECK --"), authToken);
+            }
+            if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                connections.broadcast(gameID, new NotificationMessage("--" + black + " IN CHECK --"), authToken);
+            }
+            if (!game.getState()) {
+                sendError(session, "* GAME OVER *");
+                return;
+            }
+            game.makeMove(move);
+            GameService.updateBoard(gameID, game);
+            connections.broadcastAll(gameID, new LoadGameMessage(GameService.getGame(gameID)));
+            connections.broadcast(gameID, new NotificationMessage("--" + user + " MOVED --> " + move + " --"), authToken);
         } catch (Exception e) {
-            String error = new Gson().toJson(new ErrorMessage("Error"));
-            session.getRemote().sendString(error);
+            sendError(session, "* ERROR *");
         }
     }
 
-    private void leave(LeaveCommand command, Session session) throws IOException, DataAccessException {
-        connections.remove(command.getGameID(), command.getAuthString());
-        var message = String.format("%s left the game", UserService.getUser(command.getAuthString()));
-        connections.broadcast(command.getGameID(), command.getAuthString(), new NotificationMessage(message));
+    private void leave(LeaveCommand command, Session session) throws IOException, DataAccessException, SQLException {
+        String authToken = command.getAuthString();
+        if (checkAuth(authToken)) {
+            sendError(session, "* INVALID AUTHORIZATION *");
+            return;
+        }
+        int gameID = command.getGameID();
+        if (checkID(gameID)) {
+            sendError(session, "* INVALID ID *");
+            return;
+        }
+        String user = UserService.getUser(authToken);
+        String white = GameService.getWhiteUser(gameID);
+        String black = GameService.getBlackUser(gameID);
+        if (white != null && white.equals(user)) {
+            GameService.removePlayer(gameID,"WHITE");;
+        }
+        if (black != null && black.equals(user)) {
+            GameService.removePlayer(gameID,"BLACK");
+        }
+        connections.removeSessionFromGame(gameID, authToken, session);
+        connections.broadcast(gameID, new NotificationMessage("-- " + user + " LEFT GAME --"), authToken);
     }
 
-    private void resign(ResignCommand command, Session session) throws IOException, DataAccessException {
-        connections.remove(command.getGameID(), command.getAuthString());
-        var message = String.format("%s resigned", UserService.getUser(command.getAuthString()));
-        var notification = new NotificationMessage(message);
-        String json = new Gson().toJson(notification);
-        session.getRemote().sendString(json);
-        connections.broadcast(command.getGameID(), command.getAuthString(), notification);
+    private void resign(ResignCommand command, Session session) throws IOException, DataAccessException, SQLException {
+        String authToken = command.getAuthString();
+        if (checkAuth(authToken)) {
+            sendError(session, "* INVALID AUTHORIZATION *");
+            return;
+        }
+        int gameID = command.getGameID();
+        if (checkID(gameID)) {
+            sendError(session, "* INVALID ID *");
+            return;
+        }
+        String user = UserService.getUser(authToken);
+        String white = GameService.getWhiteUser(gameID);
+        String black = GameService.getBlackUser(gameID);
+        ChessGame game = GameService.getGame(gameID);
+        if (white == null || black == null) {
+            sendError(session, "* CANNOT RESIGN *");
+            return;
+        }
+        if (!white.equals(user) && !black.equals(user)) {
+            sendError(session, "* CANNOT RESIGN *");
+            return;
+        }
+        if (!game.getState()) {
+            sendError(session, "* GAME OVER *");
+            return;
+        }
+        game.setState(Boolean.FALSE);
+        GameService.updateBoard(gameID, game);
+        connections.broadcastAll(gameID, new NotificationMessage("-- " + user + " RESIGNED | GAME OVER --"));
+    }
+
+
+    private boolean checkAuth(String authToken) throws DataAccessException {
+        return UserService.getUser(authToken) == null;
+    }
+
+    private boolean checkID(int gameID) throws DataAccessException {
+        return GameService.getGame(gameID) == null;
+    }
+
+    private void sendError(Session session, String message) throws IOException {
+        String errorMsg = new Gson().toJson(new ErrorMessage(message));
+        session.getRemote().sendString(errorMsg);
     }
 
 }

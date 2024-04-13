@@ -20,4 +20,11 @@ public interface GameDAO {
 
     void updateBoard(int id, ChessGame newGame) throws DataAccessException, SQLException;
 
+    String getWhiteUser(int id) throws DataAccessException;
+
+
+    String getBlackUser(int id) throws DataAccessException;
+
+    void removePlayer(int gameID, String color) throws DataAccessException, SQLException;
+
 }

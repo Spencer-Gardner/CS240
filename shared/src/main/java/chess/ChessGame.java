@@ -14,16 +14,19 @@ public class ChessGame {
 
     private ChessBoard board;
     private TeamColor team;
+    private Boolean state;
 
     public ChessGame() {
         board = new ChessBoard();
         team = TeamColor.WHITE;
+        state = true;
         board.resetBoard();
     }
 
     public ChessGame(ChessGame copy) {
         this.board = new ChessBoard(copy.board);
         this.team = copy.team;
+        this.state = copy.state;
     }
 
     @Override
@@ -204,6 +207,14 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    public void setState(Boolean active) {
+        this.state = active;
+    }
+
+    public Boolean getState() {
+        return state;
     }
 
 }

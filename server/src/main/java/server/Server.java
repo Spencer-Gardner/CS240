@@ -11,17 +11,13 @@ import requests.*;
 import dataAccess.DataAccessException;
 
 public class Server {
-    private final WebSocketHandler webSocketHandler;
-
-    public Server() {
-        webSocketHandler = new WebSocketHandler(new ConnectionManager());
-    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
 
+        WebSocketHandler webSocketHandler = new WebSocketHandler(new ConnectionManager());
         Spark.webSocket("/connect", webSocketHandler);
 
         Spark.delete("/db", this::clear);

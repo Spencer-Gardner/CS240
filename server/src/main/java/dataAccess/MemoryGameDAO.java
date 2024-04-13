@@ -62,4 +62,19 @@ public class MemoryGameDAO implements GameDAO {
 
     }
 
+    @Override
+    public String getWhiteUser(int id) throws DataAccessException {
+        return null;
+    }
+
+    @Override
+    public String getBlackUser(int id) throws DataAccessException {
+        return null;
+    }
+
+    @Override
+    public void removePlayer(int gameID, String color) throws DataAccessException, SQLException {
+
+    }
+
 }

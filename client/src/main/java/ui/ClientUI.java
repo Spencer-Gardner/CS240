@@ -21,24 +21,21 @@ public class ClientUI {
     private static boolean isInGame = false;
     private static String authToken;
     private static String id;
-    private static ChessGame.TeamColor color;
-    private static ArrayList<String> list = new ArrayList<>();
-    private static ChessGame game;
-    public static ServerFacade facade = new ServerFacade(8080);
-    public static WebSocketFacade socket;
+    private static final ArrayList<String> list = new ArrayList<>();
+    public static ChessGame game;
+    public static ChessGame.TeamColor color;
+    private static ServerFacade facade;
+    private static WebSocketFacade socket;
 
-    static {
-        try {
-            socket = new WebSocketFacade("http://localhost:8080");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public ClientUI(String url) throws Exception {
+        facade = new ServerFacade(url);
+        socket = new WebSocketFacade(url);
     }
 
-    public static void main(String[] args) throws Exception {
+    public void run() throws Exception {
 
-        System.out.println("Welcome to the Chess Client UI!");
-        System.out.println("Enter a command or type 'quit' to exit.");
+        System.out.println("-- Welcome to the Chess Client UI --");
+        System.out.println("-- Enter a command or type 'quit' to exit. --");
 
         String input;
         do {
@@ -78,11 +75,11 @@ public class ClientUI {
                 try {
                     authToken = facade.login(username, password);
                 } catch (Exception e) {
-                    System.out.println("Invalid");
+                    System.out.println("* INVALID *");
                     break;
                 }
                 isLoggedIn = true;
-                System.out.println("Logged In");
+                System.out.println("-- LOGGED IN --");
                 break;
             case "register":
                 System.out.print("+ Enter Username: ");
@@ -94,7 +91,7 @@ public class ClientUI {
                 try {
                     authToken = facade.register(username, password, email);
                 } catch (Exception e) {
-                    System.out.println("Invalid");
+                    System.out.println("* INVALID *");
                     break;
                 }
                 isLoggedIn = true;
@@ -125,7 +122,7 @@ public class ClientUI {
                 try {
                     facade.logout(authToken);
                 } catch (Exception e) {
-                    System.out.println("Error");
+                    System.out.println("* INVALID *");
                     break;
                 }
                 isLoggedIn = false;
@@ -137,7 +134,7 @@ public class ClientUI {
                 try {
                     id = facade.create(authToken, name);
                 } catch (Exception e) {
-                    System.out.println("Invalid");
+                    System.out.println("* INVALID *");
                     break;
                 }
                 System.out.println("Created");
@@ -147,7 +144,7 @@ public class ClientUI {
                 try {
                     games = facade.list(authToken);
                 } catch (Exception e) {
-                    System.out.println("Error");
+                    System.out.println("* ERROR *");
                     break;
                 }
                 list.clear();
@@ -165,7 +162,6 @@ public class ClientUI {
                     color = convertColor(inputColor);
                     facade.join(authToken, list.get(Integer.parseInt(id)), inputColor);
                     socket.joinPlayer(authToken, Integer.parseInt(list.get(Integer.parseInt(id))), color);
-                    RenderBoard.drawChessBoard(game, color);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     break;
@@ -180,7 +176,7 @@ public class ClientUI {
                     socket.joinObserver(authToken, Integer.parseInt(id));
                     RenderBoard.drawChessBoard(game, color);
                 } catch (Exception e) {
-                    System.out.println("Error");
+                    System.out.println("* ERROR *");
                     break;
                 }
                 isInGame = true;
@@ -208,7 +204,7 @@ public class ClientUI {
                 try {
                     RenderBoard.drawChessBoard(game, color);
                 } catch (Exception e) {
-                    System.out.println("Error");
+                    System.out.println("* ERROR *");
                     break;
                 }
                 break;
@@ -216,7 +212,7 @@ public class ClientUI {
                 try {
                     socket.leave(authToken, Integer.parseInt(id));
                 } catch (Exception e) {
-                    System.out.println("Error");
+                    System.out.println("* ERROR *");
                     break;
                 }
                 isInGame = false;
@@ -236,7 +232,7 @@ public class ClientUI {
                     socket.move(authToken, Integer.parseInt(id), new ChessMove(new ChessPosition(Integer.parseInt(startRow), Integer.parseInt(startCol)), new ChessPosition(Integer.parseInt(endRow), Integer.parseInt(endCol)), convertPiece(promotionPiece)));
                     RenderBoard.drawChessBoard(game, color);
                 } catch (Exception e) {
-                    System.out.println("Error");
+                    System.out.println(e.getMessage());
                     break;
                 }
                 break;
@@ -247,13 +243,13 @@ public class ClientUI {
                     try {
                         socket.resign(authToken, Integer.parseInt(id));
                     } catch (Exception e) {
-                        System.out.println("Error");
+                        System.out.println("* INVALID *");
                         break;
                     }
                 } else if (Objects.equals(response, "n")) {
                     break;
                 } else {
-                    System.out.println("Invalid");
+                    System.out.println("* INVALID *");
                     break;
                 }
             case "highlight":
@@ -264,7 +260,7 @@ public class ClientUI {
                 try {
                     RenderBoard.highlight(game, color, new ChessPosition(Integer.parseInt(startRow), Integer.parseInt(startCol)));
                 } catch (Exception e) {
-                    System.out.println("Error");
+                    System.out.println("* ERROR *");
                     break;
                 }
                 break;
@@ -273,11 +269,7 @@ public class ClientUI {
                 break;
         }
     }
-    
-    
-    public static void setGame(ChessGame game) {
-        ClientUI.game = game;
-    }
+
 
     private static ChessGame.TeamColor convertColor(String color) throws Exception {
         if (Objects.equals(color, "white")) {
@@ -296,7 +288,7 @@ public class ClientUI {
             case "rook" -> ChessPiece.PieceType.ROOK;
             case "queen" -> ChessPiece.PieceType.QUEEN;
             case "null" -> null;
-            case null, default -> throw new Exception();
+            case null, default -> throw new Exception(SET_TEXT_COLOR_RED + "* INVALID PIECE *" + RESET_TEXT_COLOR);
         };
     }
     
