@@ -13,7 +13,7 @@ import chess.ChessPosition;
 
 
 public class RenderBoard {
-    private static final String[] LETTERS = {"a", "b", "c", "d", "e", "f", "g", "h"};
+    private static final String[] LETTERS = {"8", "7", "6", "5", "4", "3", "2", "1"};
 
     private static final Map<String, String> PIECE_MAP = new HashMap<>();
     static {
@@ -32,7 +32,7 @@ public class RenderBoard {
     }
 
     public static void drawChessBoard(ChessGame game, ChessGame.TeamColor color) {
-        if (color == ChessGame.TeamColor.WHITE) {
+        if (color == ChessGame.TeamColor.BLACK) {
             System.out.println("\u001B[0m");
             System.out.print("  ");
             for (int i = LETTERS.length - 1; i >= 0; i--) {
@@ -86,7 +86,7 @@ public class RenderBoard {
     public static void highlight(ChessGame game, ChessGame.TeamColor color, ChessPosition position) {
         ChessPiece highlightPiece = game.getBoard().getPiece(position);
         Collection<ChessMove> moves = highlightPiece.pieceMoves(game.getBoard(), position);
-        if (color == ChessGame.TeamColor.WHITE) {
+        if (color == ChessGame.TeamColor.BLACK) {
             System.out.println("\u001B[0m");
             System.out.print("  ");
             for (int i = LETTERS.length - 1; i >= 0; i--) {
@@ -96,22 +96,29 @@ public class RenderBoard {
             for (int row = 0; row < 8; row++) {
                 System.out.print((row + 1) + " ");
                 for (int col = 0; col < 8; col++) {
+                    boolean highlight = false;
                     for (var move : moves) {
-                        if (Objects.equals(move.getEndPosition(), new ChessPosition(row, col))) {
-                            System.out.print(SET_BG_COLOR_GREEN);
-                        } else {
-                            if ((row + col) % 2 == 0) {
-                                System.out.print(SET_BG_COLOR_DARK_GREEN);
-                            } else {
-                                System.out.print(SET_BG_COLOR_LIGHT_GREY);
-                            }
+                        if (Objects.equals(move.getEndPosition(), new ChessPosition(row + 1, col + 1))) {
+                            highlight = true;
+                            break;
                         }
-                        ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row + 1, col + 1));
-                        if (piece != null) {
-                            System.out.print(PIECE_MAP.get(piece.getTeamColor() + "_" + piece.getPieceType()));
+                    }
+                    if (highlight) {
+                        System.out.print(SET_BG_COLOR_GREEN);
+                    } else if (position.equals(new ChessPosition(row + 1, col + 1))) {
+                        System.out.print(SET_BG_COLOR_YELLOW);
+                    } else {
+                        if ((row + col) % 2 == 0) {
+                            System.out.print(SET_BG_COLOR_DARK_GREEN);
                         } else {
-                            System.out.print("   ");
+                            System.out.print(SET_BG_COLOR_LIGHT_GREY);
                         }
+                    }
+                    ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row + 1, col + 1));
+                    if (piece != null) {
+                        System.out.print(PIECE_MAP.get(piece.getTeamColor() + "_" + piece.getPieceType()));
+                    } else {
+                        System.out.print("   ");
                     }
                 }
                 System.out.println("\u001B[0m");
@@ -126,22 +133,29 @@ public class RenderBoard {
             for (int row = 7; row >= 0; row--) {
                 System.out.print((row + 1) + " ");
                 for (int col = 7; col >= 0; col--) {
+                    boolean highlight = false;
                     for (var move : moves) {
-                        if (Objects.equals(move.getEndPosition(), new ChessPosition(row, col))) {
-                            System.out.print(SET_BG_COLOR_GREEN);
-                        } else {
-                            if ((row + col) % 2 == 0) {
-                                System.out.print(SET_BG_COLOR_DARK_GREEN);
-                            } else {
-                                System.out.print(SET_BG_COLOR_LIGHT_GREY);
-                            }
+                        if (Objects.equals(move.getEndPosition(), new ChessPosition(row + 1, col + 1))) {
+                            highlight = true;
+                            break;
                         }
-                        ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row + 1, col + 1));
-                        if (piece != null) {
-                            System.out.print(PIECE_MAP.get(piece.getTeamColor() + "_" + piece.getPieceType()));
+                    }
+                    if (highlight) {
+                        System.out.print(SET_BG_COLOR_GREEN);
+                    } else if (position.equals(new ChessPosition(row + 1, col + 1))) {
+                        System.out.print(SET_BG_COLOR_YELLOW);
+                    } else {
+                        if ((row + col) % 2 == 0) {
+                            System.out.print(SET_BG_COLOR_DARK_GREEN);
                         } else {
-                            System.out.print("   ");
+                            System.out.print(SET_BG_COLOR_LIGHT_GREY);
                         }
+                    }
+                    ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row + 1, col + 1));
+                    if (piece != null) {
+                        System.out.print(PIECE_MAP.get(piece.getTeamColor() + "_" + piece.getPieceType()));
+                    } else {
+                        System.out.print("   ");
                     }
                 }
                 System.out.println("\u001B[0m");
