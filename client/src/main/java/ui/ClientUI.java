@@ -7,32 +7,33 @@ import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import facade.ServerFacade;
-import java.io.IOException;
 import chess.ChessGame;
 import com.google.gson.JsonArray;
 import facade.WebSocketFacade;
-
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
 import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
 
 public class ClientUI {
-    private static final Scanner scanner = new Scanner(System.in);
-    private static boolean isLoggedIn = false;
-    private static boolean isInGame = false;
-    private static String authToken;
-    private static String id;
-    private static final ArrayList<String> list = new ArrayList<>();
-    public static ChessGame game;
-    public static ChessGame.TeamColor color;
-    private static ServerFacade facade;
-    private static WebSocketFacade socket;
+    private final Scanner scanner = new Scanner(System.in);
+    private final ArrayList<String> list = new ArrayList<>();
+    private boolean isLoggedIn = false;
+    private boolean isInGame = false;
+    private String authToken;
+    private String id;
+    public ChessGame.TeamColor color;
+    private ChessGame game;
+    private final ServerFacade facade;
+    private final WebSocketFacade socket;
+    private final RenderBoard renderBoard;
 
     public ClientUI(String url) throws Exception {
         facade = new ServerFacade(url);
-        socket = new WebSocketFacade(url);
+        socket = new WebSocketFacade(url, this);
+        game = new ChessGame();
+        renderBoard = new RenderBoard();
     }
 
-    public void run() throws Exception {
+    public void run() {
 
         System.out.println("-- Welcome to the Chess Client UI --");
         System.out.println("-- Enter a command or type 'quit' to exit. --");
@@ -53,7 +54,7 @@ public class ClientUI {
         scanner.close();
     }
 
-    private static void preLoginCommands(String command) throws IOException {
+    private void preLoginCommands(String command) {
         Scanner scanner = new Scanner(System.in);
         String username;
         String password;
@@ -75,7 +76,7 @@ public class ClientUI {
                 try {
                     authToken = facade.login(username, password);
                 } catch (Exception e) {
-                    System.out.println("* INVALID *");
+                    System.out.println(SET_TEXT_COLOR_RED + "* INVALID *" + RESET_TEXT_COLOR);
                     break;
                 }
                 isLoggedIn = true;
@@ -91,7 +92,7 @@ public class ClientUI {
                 try {
                     authToken = facade.register(username, password, email);
                 } catch (Exception e) {
-                    System.out.println("* INVALID *");
+                    System.out.println(SET_TEXT_COLOR_RED + "* INVALID *" + RESET_TEXT_COLOR);
                     break;
                 }
                 isLoggedIn = true;
@@ -103,7 +104,7 @@ public class ClientUI {
         }
     }
 
-    private static void postLoginCommands(String command) throws Exception {
+    private void postLoginCommands(String command) {
         Scanner scanner = new Scanner(System.in);
         String name;
         switch (command.toLowerCase()) {
@@ -122,7 +123,7 @@ public class ClientUI {
                 try {
                     facade.logout(authToken);
                 } catch (Exception e) {
-                    System.out.println("* INVALID *");
+                    System.out.println(SET_TEXT_COLOR_RED + "* INVALID *" + RESET_TEXT_COLOR);
                     break;
                 }
                 isLoggedIn = false;
@@ -134,7 +135,7 @@ public class ClientUI {
                 try {
                     id = facade.create(authToken, name);
                 } catch (Exception e) {
-                    System.out.println("* INVALID *");
+                    System.out.println(SET_TEXT_COLOR_RED + "* INVALID *" + RESET_TEXT_COLOR);
                     break;
                 }
                 System.out.println("Created");
@@ -144,7 +145,7 @@ public class ClientUI {
                 try {
                     games = facade.list(authToken);
                 } catch (Exception e) {
-                    System.out.println("* ERROR *");
+                    System.out.println(SET_TEXT_COLOR_RED + "* ERROR *" + RESET_TEXT_COLOR);
                     break;
                 }
                 list.clear();
@@ -174,9 +175,8 @@ public class ClientUI {
                 try {
                     facade.observe(authToken, list.get(Integer.parseInt(id)));
                     socket.joinObserver(authToken, Integer.parseInt(id));
-                    RenderBoard.drawChessBoard(game, color);
                 } catch (Exception e) {
-                    System.out.println("* ERROR *");
+                    System.out.println(SET_TEXT_COLOR_RED + "* ERROR *" + RESET_TEXT_COLOR);
                     break;
                 }
                 isInGame = true;
@@ -187,7 +187,7 @@ public class ClientUI {
         }
     }
 
-    private static void gameplayCommands(String command) {
+    private void gameplayCommands(String command) {
         String startRow;
         String startCol;
         String endRow;
@@ -202,9 +202,9 @@ public class ClientUI {
                 break;
             case "redraw":
                 try {
-                    RenderBoard.drawChessBoard(game, color);
+                    renderBoard.drawChessBoard(game, color);
                 } catch (Exception e) {
-                    System.out.println("* ERROR *");
+                    System.out.println(SET_TEXT_COLOR_RED + "* ERROR *" + RESET_TEXT_COLOR);
                     break;
                 }
                 break;
@@ -212,7 +212,7 @@ public class ClientUI {
                 try {
                     socket.leave(authToken, Integer.parseInt(id));
                 } catch (Exception e) {
-                    System.out.println("* ERROR *");
+                    System.out.println(SET_TEXT_COLOR_RED + "* ERROR *" + RESET_TEXT_COLOR);
                     break;
                 }
                 isInGame = false;
@@ -230,7 +230,6 @@ public class ClientUI {
                 String promotionPiece = scanner.nextLine();
                 try {
                     socket.move(authToken, Integer.parseInt(id), new ChessMove(new ChessPosition(Integer.parseInt(startRow), Integer.parseInt(startCol)), new ChessPosition(Integer.parseInt(endRow), Integer.parseInt(endCol)), convertPiece(promotionPiece)));
-                    RenderBoard.drawChessBoard(game, color);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     break;
@@ -243,13 +242,13 @@ public class ClientUI {
                     try {
                         socket.resign(authToken, Integer.parseInt(id));
                     } catch (Exception e) {
-                        System.out.println("* INVALID *");
+                        System.out.println(SET_TEXT_COLOR_RED + "* INVALID *" + RESET_TEXT_COLOR);
                         break;
                     }
                 } else if (Objects.equals(response, "n")) {
                     break;
                 } else {
-                    System.out.println("* INVALID *");
+                    System.out.println(SET_TEXT_COLOR_RED + "* INVALID *" + RESET_TEXT_COLOR);
                     break;
                 }
             case "highlight":
@@ -258,9 +257,9 @@ public class ClientUI {
                 System.out.print("+ Enter Piece Column: ");
                 startCol = scanner.nextLine();
                 try {
-                    RenderBoard.highlight(game, color, new ChessPosition(Integer.parseInt(startRow), Integer.parseInt(startCol)));
+                    renderBoard.highlight(game, color, new ChessPosition(Integer.parseInt(startRow), Integer.parseInt(startCol)));
                 } catch (Exception e) {
-                    System.out.println("* ERROR *");
+                    System.out.println(SET_TEXT_COLOR_RED + "* ERROR *" + RESET_TEXT_COLOR);
                     break;
                 }
                 break;
@@ -271,7 +270,7 @@ public class ClientUI {
     }
 
 
-    private static ChessGame.TeamColor convertColor(String color) throws Exception {
+    private ChessGame.TeamColor convertColor(String color) throws Exception {
         if (Objects.equals(color, "white")) {
             return ChessGame.TeamColor.WHITE;
         } else if (Objects.equals(color, "black")) {
@@ -281,7 +280,7 @@ public class ClientUI {
         }
     }
 
-    private static ChessPiece.PieceType convertPiece(String piece) throws Exception {
+    private ChessPiece.PieceType convertPiece(String piece) throws Exception {
         return switch (piece) {
             case "bishop" -> ChessPiece.PieceType.BISHOP;
             case "knight" -> ChessPiece.PieceType.KNIGHT;
@@ -291,5 +290,13 @@ public class ClientUI {
             case null, default -> throw new Exception(SET_TEXT_COLOR_RED + "* INVALID PIECE *" + RESET_TEXT_COLOR);
         };
     }
-    
+
+    public void setGame(ChessGame game) {
+        this.game = game;
+    }
+
+    public ChessGame.TeamColor getColor() {
+        return color;
+    }
+
 }

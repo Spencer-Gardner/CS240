@@ -13,10 +13,10 @@ import chess.ChessPosition;
 
 
 public class RenderBoard {
-    private static final String[] LETTERS = {"8", "7", "6", "5", "4", "3", "2", "1"};
+    private final String[] LETTERS = {"8", "7", "6", "5", "4", "3", "2", "1"};
 
-    private static final Map<String, String> PIECE_MAP = new HashMap<>();
-    static {
+    private final Map<String, String> PIECE_MAP = new HashMap<>();
+    public RenderBoard() {
         PIECE_MAP.put("WHITE_KING", SET_TEXT_BOLD + " K ");
         PIECE_MAP.put("WHITE_QUEEN", SET_TEXT_BOLD + " Q ");
         PIECE_MAP.put("WHITE_BISHOP", SET_TEXT_BOLD + " B ");
@@ -31,7 +31,7 @@ public class RenderBoard {
         PIECE_MAP.put("BLACK_PAWN", SET_TEXT_BOLD + SET_TEXT_COLOR_BLACK + " P ");
     }
 
-    public static void drawChessBoard(ChessGame game, ChessGame.TeamColor color) {
+    public void drawChessBoard(ChessGame game, ChessGame.TeamColor color) {
         if (color == ChessGame.TeamColor.BLACK) {
             System.out.println("\u001B[0m");
             System.out.print("  ");
@@ -83,7 +83,7 @@ public class RenderBoard {
         }
     }
 
-    public static void highlight(ChessGame game, ChessGame.TeamColor color, ChessPosition position) {
+    public void highlight(ChessGame game, ChessGame.TeamColor color, ChessPosition position) {
         ChessPiece highlightPiece = game.getBoard().getPiece(position);
         Collection<ChessMove> moves = highlightPiece.pieceMoves(game.getBoard(), position);
         if (color == ChessGame.TeamColor.BLACK) {

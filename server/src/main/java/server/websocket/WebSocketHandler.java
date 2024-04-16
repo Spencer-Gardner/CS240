@@ -5,7 +5,6 @@ import chess.ChessMove;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
-import dataAccess.GameDAO;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -28,30 +27,33 @@ public class WebSocketHandler {
         this.connections = connections;
     }
 
+    final Object lock = new Object();
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, DataAccessException, InvalidMoveException, SQLException {
-        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-        switch (command.getCommandType()) {
-            case JOIN_PLAYER:
-                JoinPlayerCommand joinPlayerCommand = new Gson().fromJson(message, JoinPlayerCommand.class);
-                joinPlayer(joinPlayerCommand, session);
-                break;
-            case JOIN_OBSERVER:
-                JoinObserverCommand joinObserverCommand = new Gson().fromJson(message, JoinObserverCommand.class);
-                joinObserver(joinObserverCommand, session);
-                break;
-            case MAKE_MOVE:
-                MakeMoveCommand makeMoveCommand = new Gson().fromJson(message, MakeMoveCommand.class);
-                move(makeMoveCommand, session);
-                break;
-            case LEAVE:
-                LeaveCommand leaveCommand = new Gson().fromJson(message, LeaveCommand.class);
-                leave(leaveCommand, session);
-                break;
-            case RESIGN:
-                ResignCommand resignCommand = new Gson().fromJson(message, ResignCommand.class);
-                resign(resignCommand, session);
-                break;
+        synchronized (lock) {
+            UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+            switch (command.getCommandType()) {
+                case JOIN_PLAYER:
+                    JoinPlayerCommand joinPlayerCommand = new Gson().fromJson(message, JoinPlayerCommand.class);
+                    joinPlayer(joinPlayerCommand, session);
+                    break;
+                case JOIN_OBSERVER:
+                    JoinObserverCommand joinObserverCommand = new Gson().fromJson(message, JoinObserverCommand.class);
+                    joinObserver(joinObserverCommand, session);
+                    break;
+                case MAKE_MOVE:
+                    MakeMoveCommand makeMoveCommand = new Gson().fromJson(message, MakeMoveCommand.class);
+                    move(makeMoveCommand, session);
+                    break;
+                case LEAVE:
+                    LeaveCommand leaveCommand = new Gson().fromJson(message, LeaveCommand.class);
+                    leave(leaveCommand, session);
+                    break;
+                case RESIGN:
+                    ResignCommand resignCommand = new Gson().fromJson(message, ResignCommand.class);
+                    resign(resignCommand, session);
+                    break;
+            }
         }
     }
 

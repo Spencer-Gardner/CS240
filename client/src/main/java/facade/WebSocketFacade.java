@@ -17,8 +17,9 @@ import static ui.EscapeSequences.*;
 public class WebSocketFacade extends Endpoint {
 
     Session session;
+    RenderBoard renderBoard = new RenderBoard();
 
-    public WebSocketFacade(String url) throws Exception {
+    public WebSocketFacade(String url, ClientUI client) throws Exception {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/connect");
@@ -26,20 +27,23 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
+            Object lock = new Object();
             this.session.addMessageHandler(new javax.websocket.MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
-                    if ((notification.getServerMessageType()).equals(ServerMessage.ServerMessageType.LOAD_GAME)) {
-                        LoadGameMessage load = new Gson().fromJson(message, LoadGameMessage.class);
-                        ClientUI.game = load.getGame();
-                        RenderBoard.drawChessBoard(load.getGame(), ClientUI.color);
-                    } else if ((notification.getServerMessageType()).equals(ServerMessage.ServerMessageType.NOTIFICATION)) {
-                        NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
-                        System.out.println(SET_TEXT_COLOR_YELLOW + notificationMessage + SET_TEXT_COLOR_WHITE);
-                    } else {
-                        ErrorMessage error = new Gson().fromJson(message, ErrorMessage.class);
-                        System.out.println(SET_TEXT_COLOR_RED + error + SET_TEXT_COLOR_WHITE);
+                    synchronized (lock) {
+                        ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
+                        if ((notification.getServerMessageType()).equals(ServerMessage.ServerMessageType.LOAD_GAME)) {
+                            LoadGameMessage load = new Gson().fromJson(message, LoadGameMessage.class);
+                            client.setGame(load.getGame());
+                            renderBoard.drawChessBoard(load.getGame(), client.getColor());
+                        } else if ((notification.getServerMessageType()).equals(ServerMessage.ServerMessageType.NOTIFICATION)) {
+                            NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
+                            System.out.println(SET_TEXT_COLOR_YELLOW + notificationMessage.getMessage() + SET_TEXT_COLOR_WHITE);
+                        } else {
+                            ErrorMessage error = new Gson().fromJson(message, ErrorMessage.class);
+                            System.out.println(SET_TEXT_COLOR_RED + error + SET_TEXT_COLOR_WHITE);
+                        }
                     }
                 }
             });

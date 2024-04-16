@@ -76,6 +76,8 @@ public class SQLGameDAO implements GameDAO {
                             statement.setString(1, json);
                             statement.executeUpdate();
                         }
+                    } else if (game.whiteUsername().equals(user)) {
+                        return;
                     } else {
                         throw new DataAccessException(403, "Error: already taken");
                     }
@@ -87,6 +89,8 @@ public class SQLGameDAO implements GameDAO {
                             statement.setString(1, json);
                             statement.executeUpdate();
                         }
+                    } else if (game.blackUsername().equals(user)) {
+                        return;
                     } else {
                         throw new DataAccessException(403, "Error: already taken");
                     }

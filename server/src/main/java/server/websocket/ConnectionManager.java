@@ -5,10 +5,8 @@ import org.eclipse.jetty.websocket.api.Session;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.serverMessages.ServerMessage;
-
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
@@ -43,7 +41,7 @@ public class ConnectionManager {
     }
 
     public void sendMessage(int gameID, LoadGameMessage message, String authToken) throws IOException {
-        String messageJSON = new Gson().toJson(message);
+        String messageJSON = new Gson().toJson(message, LoadGameMessage.class);
         Session session = connections.get(gameID).get(authToken);
         if (session.isOpen()) {
             session.getRemote().sendString(messageJSON);
@@ -51,7 +49,7 @@ public class ConnectionManager {
     }
 
     public void broadcast(int gameID, NotificationMessage message, String exceptAuth) throws IOException {
-        String messageJSON = new Gson().toJson(message);
+        String messageJSON = new Gson().toJson(message, NotificationMessage.class);
         HashMap<String, Session> relevantSessions = getSessionsForGame(gameID);
         for (String authToken : relevantSessions.keySet()) {
             Session session = connections.get(gameID).get(authToken);
@@ -64,7 +62,7 @@ public class ConnectionManager {
     }
 
     public void broadcastAll(int gameID, ServerMessage message) throws IOException {
-        String messageJSON = new Gson().toJson(message);
+        String messageJSON = new Gson().toJson(message, ServerMessage.class);
         HashMap<String, Session> relevantSessions = getSessionsForGame(gameID);
         for (String authToken : relevantSessions.keySet()) {
             Session session = connections.get(gameID).get(authToken);
