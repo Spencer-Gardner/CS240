@@ -42,7 +42,7 @@ public class WebSocketFacade extends Endpoint {
                             System.out.println(SET_TEXT_COLOR_YELLOW + notificationMessage.getMessage() + SET_TEXT_COLOR_WHITE);
                         } else {
                             ErrorMessage error = new Gson().fromJson(message, ErrorMessage.class);
-                            System.out.println(SET_TEXT_COLOR_RED + error + SET_TEXT_COLOR_WHITE);
+                            System.out.println(SET_TEXT_COLOR_RED + error.getErrorMessage() + SET_TEXT_COLOR_WHITE);
                         }
                     }
                 }

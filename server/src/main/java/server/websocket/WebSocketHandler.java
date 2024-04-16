@@ -163,7 +163,7 @@ public class WebSocketHandler {
             }
             game.makeMove(move);
             GameService.updateBoard(gameID, game);
-            connections.broadcastAll(gameID, new LoadGameMessage(GameService.getGame(gameID)));
+            connections.broadcastAll(gameID, new LoadGameMessage(game));
             connections.broadcast(gameID, new NotificationMessage("--" + user + " MOVED --> " + move + " --"), authToken);
         } catch (Exception e) {
             sendError(session, "* ERROR *");

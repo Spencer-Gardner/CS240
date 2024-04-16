@@ -62,7 +62,7 @@ public class ConnectionManager {
     }
 
     public void broadcastAll(int gameID, ServerMessage message) throws IOException {
-        String messageJSON = new Gson().toJson(message, ServerMessage.class);
+        String messageJSON = new Gson().toJson(message);
         HashMap<String, Session> relevantSessions = getSessionsForGame(gameID);
         for (String authToken : relevantSessions.keySet()) {
             Session session = connections.get(gameID).get(authToken);
