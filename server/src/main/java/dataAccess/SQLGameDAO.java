@@ -43,19 +43,9 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void updateGame(String color, int id, String authToken) throws DataAccessException {
-        GameData game = null;
+        GameData game;
         try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("SELECT gamedata FROM game WHERE id=?")) {
-                statement.setInt(1, id);
-                try (var rs = statement.executeQuery()) {
-                    if (rs.next()) {
-                        var json = rs.getString("gamedata");
-                        game = new Gson().fromJson(json, GameData.class);
-                    } else {
-                        throw new DataAccessException(400, "Error: bad request");
-                    }
-                }
-            }
+            game = getGameData(id, conn);
             String user = authDAO.getUser(authToken);
             if (game != null) {
                 if (color == null) {
@@ -99,6 +89,22 @@ public class SQLGameDAO implements GameDAO {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
+    }
+
+    private GameData getGameData(int id, Connection conn) throws SQLException, DataAccessException {
+        GameData game;
+        try (var statement = conn.prepareStatement("SELECT gamedata FROM game WHERE id=?")) {
+            statement.setInt(1, id);
+            try (var rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    var json = rs.getString("gamedata");
+                    game = new Gson().fromJson(json, GameData.class);
+                } else {
+                    throw new DataAccessException(400, "Error: bad request");
+                }
+            }
+        }
+        return game;
     }
 
     public Collection<GameData> listGames() throws DataAccessException {
@@ -148,19 +154,9 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void updateBoard(int id, ChessGame newGame) throws DataAccessException, SQLException {
-        GameData game = null;
+        GameData game;
         try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("SELECT gamedata FROM game WHERE id=?")) {
-                statement.setInt(1, id);
-                try (var rs = statement.executeQuery()) {
-                    if (rs.next()) {
-                        var json = rs.getString("gamedata");
-                        game = new Gson().fromJson(json, GameData.class);
-                    } else {
-                        throw new DataAccessException(400, "Error: bad request");
-                    }
-                }
-            }
+            game = getGameData(id, conn);
         }
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("UPDATE game SET gamedata=? WHERE id=?")) {
@@ -214,19 +210,9 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void removePlayer(int id, String color) throws DataAccessException, SQLException {
-        GameData game = null;
+        GameData game;
         try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("SELECT gamedata FROM game WHERE id=?")) {
-                statement.setInt(1, id);
-                try (var rs = statement.executeQuery()) {
-                    if (rs.next()) {
-                        var json = rs.getString("gamedata");
-                        game = new Gson().fromJson(json, GameData.class);
-                    } else {
-                        throw new DataAccessException(400, "Error: bad request");
-                    }
-                }
-            }
+            game = getGameData(id, conn);
         }
         if (Objects.equals(color, "WHITE")) {
             try (var conn = DatabaseManager.getConnection()) {
