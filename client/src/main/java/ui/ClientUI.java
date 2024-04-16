@@ -26,8 +26,8 @@ public class ClientUI {
     private final WebSocketFacade socket;
     private final RenderBoard renderBoard;
 
-    public ClientUI(String url) throws Exception {
-        facade = new ServerFacade(url);
+    public ClientUI(String url, int port) throws Exception {
+        facade = new ServerFacade(port);
         socket = new WebSocketFacade(url, this);
         game = new ChessGame();
         renderBoard = new RenderBoard();

@@ -12,8 +12,8 @@ import java.net.URL;
 public class ServerFacade {
     private static String server;
 
-    public ServerFacade(String port) {
-        server = port;
+    public ServerFacade(int port) {
+        server = String.format("http://localhost:%d", port);
     }
 
     public String login(String username, String password) throws IOException {
